@@ -1,0 +1,18 @@
+# Segurança e Chaves de API (NUNCA commitar)
+api_keys/
+*.key
+*.pem
+*.env
+*.env.*
+*.secret
+
+# IDEs e Sistema Operacional
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+*.DS_Store
+
+# Logs e arquivos temporários
+*.log
+scratch/
