@@ -35,6 +35,7 @@ Uso:
 import os
 import re
 import sys
+import time
 import json
 import zlib
 import base64
@@ -240,11 +241,13 @@ class RenderizadorMermaid:
         tema: str = "default",
         escala: int = 2,
         formato: str = "all",
+        largura: int = 1920,
     ):
         self.output_dir = output_dir
         self.tema = tema
         self.escala = escala
         self.formato = formato  # 'all', 'png', 'svg'
+        self.largura = largura
         self.headers = {
             "User-Agent": (
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -255,8 +258,10 @@ class RenderizadorMermaid:
 
     def _codificar_pako(self, codigo_mermaid: str) -> str:
         """Compacta o código Mermaid com zlib e converte para base64 URL-safe."""
+        # O parser mermaid.ink requer obrigatoriamente quebra de linha ao final do código
+        codigo_limpo = codigo_mermaid.strip() + "\n"
         estado = {
-            "code": codigo_mermaid,
+            "code": codigo_limpo,
             "mermaid": {
                 "theme": self.tema,
             },
@@ -264,6 +269,28 @@ class RenderizadorMermaid:
         json_bytes = json.dumps(estado).encode("utf-8")
         comprimido = zlib.compress(json_bytes, level=9)
         return base64.urlsafe_b64encode(comprimido).decode("ascii")
+
+    def _requisitar_com_retry(
+        self, url: str, timeout: int = 35, eh_svg: bool = False, max_tentativas: int = 3
+    ) -> Optional[requests.Response]:
+        """Executa requisição HTTP com tentativas e backoff exponencial em caso de erro 503/429/timeout."""
+        for tentativa in range(1, max_tentativas + 1):
+            try:
+                resp = requests.get(url, headers=self.headers, timeout=timeout)
+                if resp.status_code == 200:
+                    if eh_svg and resp.text.startswith("<svg"):
+                        return resp
+                    elif not eh_svg and len(resp.content) > 100:
+                        return resp
+                elif resp.status_code in (500, 502, 503, 504, 429):
+                    # Servidor ocupado / rate limit transitório: aguardar antes de tentar novamente
+                    time.sleep(1.5 * tentativa)
+                else:
+                    return resp
+            except Exception:
+                if tentativa < max_tentativas:
+                    time.sleep(1.5 * tentativa)
+        return None
 
     def renderizar_via_api(
         self, diag: Diagrama
@@ -276,38 +303,34 @@ class RenderizadorMermaid:
         # 1. Gerar SVG se solicitado
         if self.formato in ("all", "svg"):
             url_svg = f"https://mermaid.ink/svg/pako:{pako_str}"
-            try:
-                resp = requests.get(url_svg, headers=self.headers, timeout=25)
-                if resp.status_code == 200 and resp.text.startswith("<svg"):
-                    svg_dest = self.output_dir / f"{diag.slug}.svg"
-                    with open(svg_dest, "w", encoding="utf-8") as f:
-                        f.write(resp.text)
-                    svg_path = svg_dest
-                else:
-                    print_aviso(
-                        f"Falha ao gerar SVG para '{diag.slug}': HTTP {resp.status_code}"
-                    )
-            except Exception as e:
-                print_aviso(f"Erro de rede ao baixar SVG de '{diag.slug}': {e}")
+            resp = self._requisitar_com_retry(url_svg, timeout=25, eh_svg=True)
+            if resp and resp.status_code == 200 and resp.text.startswith("<svg"):
+                svg_dest = self.output_dir / f"{diag.slug}.svg"
+                with open(svg_dest, "w", encoding="utf-8") as f:
+                    f.write(resp.text)
+                svg_path = svg_dest
+            else:
+                cod = resp.status_code if resp else "timeout"
+                print_aviso(f"Falha ao gerar SVG para '{diag.slug}': HTTP {cod}")
+
+            time.sleep(0.3)
 
         # 2. Gerar PNG se solicitado
         if self.formato in ("all", "png"):
             url_png = (
-                f"https://mermaid.ink/img/pako:{pako_str}?type=png&scale={self.escala}"
+                f"https://mermaid.ink/img/pako:{pako_str}?type=png&width={self.largura}&scale={self.escala}"
             )
-            try:
-                resp = requests.get(url_png, headers=self.headers, timeout=30)
-                if resp.status_code == 200 and resp.content[:8] == b"\x89PNG\r\n\x1a\n":
-                    png_dest = self.output_dir / f"{diag.slug}.png"
-                    with open(png_dest, "wb") as f:
-                        f.write(resp.content)
-                    png_path = png_dest
-                else:
-                    print_aviso(
-                        f"Falha ao gerar PNG para '{diag.slug}': HTTP {resp.status_code}"
-                    )
-            except Exception as e:
-                print_aviso(f"Erro de rede ao baixar PNG de '{diag.slug}': {e}")
+            resp = self._requisitar_com_retry(url_png, timeout=35, eh_svg=False)
+            if resp and resp.status_code == 200 and len(resp.content) > 100:
+                png_dest = self.output_dir / f"{diag.slug}.png"
+                with open(png_dest, "wb") as f:
+                    f.write(resp.content)
+                png_path = png_dest
+            else:
+                cod = resp.status_code if resp else "timeout"
+                print_aviso(f"Falha ao gerar PNG para '{diag.slug}': HTTP {cod}")
+
+            time.sleep(0.3)
 
         return png_path, svg_path
 
@@ -741,6 +764,13 @@ def main():
         help="Fator de escala para qualidade do PNG (padrão: 2 para Retina)",
     )
     parser.add_argument(
+        "--width",
+        "-w",
+        type=int,
+        default=1920,
+        help="Largura base em pixels para imagens PNG (padrão: 1920)",
+    )
+    parser.add_argument(
         "--cli",
         action="store_true",
         help="Força uso do mermaid-cli (mmdc) local em vez da API mermaid.ink",
@@ -761,6 +791,7 @@ def main():
     print_info(f"Formato          : {args.format.upper()}")
     print_info(f"Tema Mermaid     : {args.theme}")
     print_info(f"Escala PNG       : {args.scale}x")
+    print_info(f"Largura Base PNG : {args.width}px")
     print_info(f"Modo de Render   : {'Local CLI (mmdc)' if args.cli else 'API Mermaid Oficial (mermaid.ink)'}\n")
 
     # Identificar arquivos .md para leitura
@@ -807,6 +838,7 @@ def main():
         tema=args.theme,
         escala=args.scale,
         formato=args.format,
+        largura=args.width,
     )
 
     resultados = []

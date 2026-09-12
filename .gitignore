@@ -17,5 +17,10 @@ Desktop.ini
 *.log
 scratch/
 
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
 # Memória do projeto (não enviar para GitHub)
 .memoria/
