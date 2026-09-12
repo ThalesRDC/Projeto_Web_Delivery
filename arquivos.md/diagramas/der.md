@@ -1,0 +1,134 @@
+# Diagrama Entidade-Relacionamento (DER)
+
+## Visão Relacional das Entidades Persistentes
+
+O DER apresenta a visão relacional — tabelas, chaves primárias (PK), chaves estrangeiras (FK) e cardinalidade da FK. Derivado das classes marcadas como persistentes no diagrama de classes.
+
+```mermaid
+erDiagram
+    USUARIO ||--o{ PEDIDO : "realiza"
+    CLIENTE ||--o{ PEDIDO : "é cliente"
+    RESTAURANTE ||--o{ PEDIDO : "recebe"
+    RESTAURANTE ||--o{ CASH_REGISTER : "gerencia"
+    
+    PEDIDO ||--|{ ITEM_PEDIDO : "contém"
+    PEDIDO ||--|| PAGAMENTO : "liquida"
+    PEDIDO ||--|| DOCUMENTO_FISCAL : "emite"
+    PEDIDO ||--|| DESPACHO_ENTREGA : "encaminha"
+    
+    ITEM_PEDIDO }o--|| PRODUTO : "referência"
+    ENTREGADOR ||--o{ DESPACHO_ENTREGA : "executa"
+    CAIXA_SESSAO }o--|| OPERADOR : "aberta por"
+
+    USUARIO {
+        uuid id PK
+        string nome
+        string email
+        string cpf_cnpj UK
+        string tipo "usuario|admin"
+    }
+
+    CLIENTE {
+        uuid id PK
+        string razao_social
+        string email UK
+        string telefone
+    }
+
+    RESTAURANTE {
+        uuid id PK
+        string cnpj UK
+        string razao_social
+        string nome_fantasia
+        string timezone
+    }
+
+    PEDIDO {
+        uuid id PK
+        uuid usuario_id FK
+        uuid restaurante_id FK
+        string codigo_diario
+        string origem_canal "WEB_PROPRIO | IFOOD | PDV_LANCADOR"
+        string status "CRIADO | PREPARO | PRONTO | DESPACHADO | ENTREGUE | CANCELADO"
+        decimal valor_produtos
+        decimal taxa_entrega
+        decimal valor_total
+        timestamp criado_em
+        timestamp confirmado_em
+    }
+
+    ITEM_PEDIDO {
+        uuid id PK
+        uuid pedido_id FK
+        uuid cardapio_item_id FK
+        string nome_snapshot
+        int quantidade
+        decimal preco_unitario
+        decimal subtotal
+    }
+
+    PRODUTO {
+        uuid id PK
+        string nome
+        string descricao
+        decimal preco
+    }
+
+    PAGAMENTO {
+        uuid id PK
+        uuid pedido_id FK
+        string metodo "PIX | CARTAO_CREDITO | DINHEIRO"
+        decimal valor_bruto
+        decimal taxa_gateway
+        decimal split_restaurante
+        decimal split_entregador
+        string status_transacao
+    }
+
+    DOCUMENTO_FISCAL {
+        uuid id PK
+        uuid pedido_id FK
+        string chave_acesso UK
+        string numero_nf
+        string status "AUTORIZADA | CONTINGENCIA | CANCELADA"
+        string xml_storage_url
+        timestamp autorizado_em
+    }
+
+    DESPACHO_ENTREGA {
+        uuid id PK
+        uuid pedido_id FK
+        uuid entregador_id FK
+        string status "ALOCADO | EM_ROTA | ENTREGUE | EXTRAVIADO"
+        string codigo_confirmacao
+        timestamp saida_em
+        timestamp entrega_em
+    }
+
+    CASH_REGISTER {
+        uuid id PK
+        uuid restaurante_id FK
+        uuid operador_id
+        timestamp abertura_em
+        timestamp fechamento_em
+        decimal saldo_inicial
+        decimal total_entradas_declaradas
+        decimal total_entradas_sistema
+        decimal diferenca_apurada
+    }
+
+    ENTREGADOR {
+        uuid id PK
+        string nome
+        string veiculo
+        string status "DISPONIVEL | EM_ROTA | INDISPONIVEL"
+    }
+```
+
+## Regra de Conversão Classe → Tabela
+
+- **Composição 1-N** (`Pedido *-- ItemPedido`) → FK na tabela do lado "muitos" (`item_pedido.pedido_id → pedido.id`)
+- **Agregação 1-N** (`Usuario "1" -- "0..*" Pedido`) → FK na tabela do lado "muitos" (`pedido.usuario_id → usuario.id`)
+- **Associação N-N** → tabela associativa própria com FK composta
+- **Herança** (`Administrador --|> Usuario`) → tabela única com coluna `tipo` discriminadora
+- **Value Object** → coluna embutida na tabela do dono, não tabela separada

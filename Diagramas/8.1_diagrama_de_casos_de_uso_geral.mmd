@@ -1,0 +1,48 @@
+flowchart LR
+    Cliente((Cliente Final))
+    Atendente((Atendente PDV))
+    Cozinheiro((Cozinheiro))
+    Entregador((Entregador))
+    Admin((Administrador))
+    Sefaz((SEFAZ Fiscal))
+    Ifood((iFood API))
+
+    subgraph Ingestao["Contexto de Ingestão"]
+        UC01[Consultar Cardápio Digital]
+        UC02[Realizar Pedido Web]
+        UC03[Lançar Pedido Rápido PDV]
+        UC04[Ingerir Webhook Integrador]
+    end
+
+    subgraph Fulfillment["Contexto de Cozinha"]
+        UC05[Visualizar Fila no KDS]
+        UC06[Avançar Etapa de Preparo]
+        UC07[Sincronizar Ações Offline]
+    end
+
+    subgraph Logistica["Contexto de Despacho"]
+        UC08[Alocar Pedido a Entregador]
+        UC09[Registrar Confirmação de Entrega]
+    end
+
+    subgraph FinanceiroFiscal["Contexto Backoffice & Fiscal"]
+        UC10[Efetuar Fechamento de Caixa]
+        UC11[Emitir NFC-e Eletrônica]
+        UC12[Consultar Relatórios e Curva ABC]
+    end
+
+    Cliente --> UC01
+    Cliente --> UC02
+    Atendente --> UC03
+    Ifood --> UC04
+    Cozinheiro --> UC05
+    Cozinheiro --> UC06
+    Cozinheiro --> UC07
+    Atendente --> UC08
+    Entregador --> UC09
+    Atendente --> UC10
+    Admin --> UC12
+    Sefaz --> UC11
+    UC02 -.->|include| UC11
+    UC03 -.->|include| UC11
+    UC11 --> Sefaz

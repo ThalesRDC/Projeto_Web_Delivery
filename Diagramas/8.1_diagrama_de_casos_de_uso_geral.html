@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>8.1 Diagrama de Casos de Uso Geral - PUGD</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #1e293b;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    h1 {
+      margin: 0 0 8px 0;
+      color: #0f172a;
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .meta {
+      color: #64748b;
+      font-size: 13px;
+    }
+    .actions {
+      margin-top: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 7px 14px;
+      background: #2563eb;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: #1d4ed8; }
+    .btn-secondary { background: #64748b; }
+    .btn-secondary:hover { background: #475569; }
+    .diagram-container {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 400px;
+      overflow: auto;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 24px;
+      color: #94a3b8;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>8.1 Diagrama de Casos de Uso Geral</h1>
+    <div class="meta">Origem: <code>arquivos.md/diagramas/diagramas_tecnicos.md</code></div>
+    <div class="actions">
+      <a class="btn" href="8.1_diagrama_de_casos_de_uso_geral.png" download>Baixar PNG</a>
+      <a class="btn btn-secondary" href="8.1_diagrama_de_casos_de_uso_geral.svg" download>Baixar SVG</a>
+      <a class="btn btn-secondary" href="8.1_diagrama_de_casos_de_uso_geral.mmd" download>Código Mermaid (.mmd)</a>
+      <a class="btn btn-secondary" href="index.html">← Voltar à Galeria</a>
+    </div>
+  </div>
+
+  <div class="diagram-container">
+    <pre class="mermaid">
+flowchart LR
+    Cliente((Cliente Final))
+    Atendente((Atendente PDV))
+    Cozinheiro((Cozinheiro))
+    Entregador((Entregador))
+    Admin((Administrador))
+    Sefaz((SEFAZ Fiscal))
+    Ifood((iFood API))
+
+    subgraph Ingestao["Contexto de Ingestão"]
+        UC01[Consultar Cardápio Digital]
+        UC02[Realizar Pedido Web]
+        UC03[Lançar Pedido Rápido PDV]
+        UC04[Ingerir Webhook Integrador]
+    end
+
+    subgraph Fulfillment["Contexto de Cozinha"]
+        UC05[Visualizar Fila no KDS]
+        UC06[Avançar Etapa de Preparo]
+        UC07[Sincronizar Ações Offline]
+    end
+
+    subgraph Logistica["Contexto de Despacho"]
+        UC08[Alocar Pedido a Entregador]
+        UC09[Registrar Confirmação de Entrega]
+    end
+
+    subgraph FinanceiroFiscal["Contexto Backoffice & Fiscal"]
+        UC10[Efetuar Fechamento de Caixa]
+        UC11[Emitir NFC-e Eletrônica]
+        UC12[Consultar Relatórios e Curva ABC]
+    end
+
+    Cliente --> UC01
+    Cliente --> UC02
+    Atendente --> UC03
+    Ifood --> UC04
+    Cozinheiro --> UC05
+    Cozinheiro --> UC06
+    Cozinheiro --> UC07
+    Atendente --> UC08
+    Entregador --> UC09
+    Atendente --> UC10
+    Admin --> UC12
+    Sefaz --> UC11
+    UC02 -.->|include| UC11
+    UC03 -.->|include| UC11
+    UC11 --> Sefaz
+    </pre>
+  </div>
+
+  <div class="footer">
+    Plataforma Unificada de Gestão de Delivery (PUGD) • Renderizado via Mermaid.js
+  </div>
+
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      flowchart: { useMaxWidth: true, htmlLabels: true },
+      er: { useMaxWidth: true },
+      sequence: { useMaxWidth: true }
+    });
+  </script>
+</body>
+</html>

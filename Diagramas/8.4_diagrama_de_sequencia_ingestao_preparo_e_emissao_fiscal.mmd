@@ -1,0 +1,36 @@
+sequenceDiagram
+    autonumber
+    actor Cliente as Cliente (Cardápio Web)
+    participant Gateway as Order Gateway (FastAPI)
+    participant DB as PostgreSQL (ACID)
+    participant KDS as Terminal KDS (Cozinha)
+    participant Fiscal as Worker Fiscal
+    participant SEFAZ as Webservice SEFAZ
+
+    Cliente ->> Gateway: Submeter Pedido (POST /orders com X-Idempotency-Key)
+    Gateway ->> DB: Verificar Idempotência e Salvar Pedido (Status: CRIADO)
+    DB -->> Gateway: Pedido Persistido com Sucesso
+    Gateway -->> Cliente: HTTP 201 Created (Código do Pedido)
+    
+    Gateway -) KDS: Disparo de Evento via SSE (OrderCreatedEvent)
+    Note over KDS: Cozinha recebe o pedido instantaneamente (< 500ms)
+    
+    Gateway -) Fiscal: Enfileira Tarefa de Faturamento Assíncrono
+    
+    Cozinheiro ->> KDS: Toca na tela: Iniciar Preparo
+    KDS ->> Gateway: PATCH /orders/{id}/status (IN_PREPARATION)
+    
+    par Faturamento Assíncrono com SEFAZ
+        Fiscal ->> SEFAZ: Transmitir Lote NFC-e
+        alt SEFAZ Responde com Sucesso
+            SEFAZ -->> Fiscal: Protocolo de Autorização
+            Fiscal ->> DB: Atualizar Nota Fiscal (AUTORIZADA + Chave de Acesso)
+        else SEFAZ Inacessível (Timeout 3s)
+            Fiscal ->> DB: Gerar Registro em CONTINGÊNCIA OFFLINE
+            Note over Fiscal: XML enfileirado para envio posterior
+        end
+    and Finalização do Prato na Cozinha
+        Cozinheiro ->> KDS: Toca na tela: Pedido Pronto
+        KDS ->> Gateway: PATCH /orders/{id}/status (READY)
+        Gateway -) DB: Atualiza Status e Notifica Despacho
+    end

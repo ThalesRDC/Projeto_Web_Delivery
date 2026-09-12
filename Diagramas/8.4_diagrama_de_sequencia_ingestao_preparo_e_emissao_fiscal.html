@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>8.4 Diagrama de Sequência: Ingestão, Preparo e Emissão Fiscal - PUGD</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #1e293b;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    h1 {
+      margin: 0 0 8px 0;
+      color: #0f172a;
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .meta {
+      color: #64748b;
+      font-size: 13px;
+    }
+    .actions {
+      margin-top: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 7px 14px;
+      background: #2563eb;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: #1d4ed8; }
+    .btn-secondary { background: #64748b; }
+    .btn-secondary:hover { background: #475569; }
+    .diagram-container {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 400px;
+      overflow: auto;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 24px;
+      color: #94a3b8;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>8.4 Diagrama de Sequência: Ingestão, Preparo e Emissão Fiscal</h1>
+    <div class="meta">Origem: <code>arquivos.md/diagramas/diagramas_tecnicos.md</code></div>
+    <div class="actions">
+      <a class="btn" href="8.4_diagrama_de_sequencia_ingestao_preparo_e_emissao_fiscal.png" download>Baixar PNG</a>
+      <a class="btn btn-secondary" href="8.4_diagrama_de_sequencia_ingestao_preparo_e_emissao_fiscal.svg" download>Baixar SVG</a>
+      <a class="btn btn-secondary" href="8.4_diagrama_de_sequencia_ingestao_preparo_e_emissao_fiscal.mmd" download>Código Mermaid (.mmd)</a>
+      <a class="btn btn-secondary" href="index.html">← Voltar à Galeria</a>
+    </div>
+  </div>
+
+  <div class="diagram-container">
+    <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    actor Cliente as Cliente (Cardápio Web)
+    participant Gateway as Order Gateway (FastAPI)
+    participant DB as PostgreSQL (ACID)
+    participant KDS as Terminal KDS (Cozinha)
+    participant Fiscal as Worker Fiscal
+    participant SEFAZ as Webservice SEFAZ
+
+    Cliente ->> Gateway: Submeter Pedido (POST /orders com X-Idempotency-Key)
+    Gateway ->> DB: Verificar Idempotência e Salvar Pedido (Status: CRIADO)
+    DB -->> Gateway: Pedido Persistido com Sucesso
+    Gateway -->> Cliente: HTTP 201 Created (Código do Pedido)
+    
+    Gateway -) KDS: Disparo de Evento via SSE (OrderCreatedEvent)
+    Note over KDS: Cozinha recebe o pedido instantaneamente (< 500ms)
+    
+    Gateway -) Fiscal: Enfileira Tarefa de Faturamento Assíncrono
+    
+    Cozinheiro ->> KDS: Toca na tela: Iniciar Preparo
+    KDS ->> Gateway: PATCH /orders/{id}/status (IN_PREPARATION)
+    
+    par Faturamento Assíncrono com SEFAZ
+        Fiscal ->> SEFAZ: Transmitir Lote NFC-e
+        alt SEFAZ Responde com Sucesso
+            SEFAZ -->> Fiscal: Protocolo de Autorização
+            Fiscal ->> DB: Atualizar Nota Fiscal (AUTORIZADA + Chave de Acesso)
+        else SEFAZ Inacessível (Timeout 3s)
+            Fiscal ->> DB: Gerar Registro em CONTINGÊNCIA OFFLINE
+            Note over Fiscal: XML enfileirado para envio posterior
+        end
+    and Finalização do Prato na Cozinha
+        Cozinheiro ->> KDS: Toca na tela: Pedido Pronto
+        KDS ->> Gateway: PATCH /orders/{id}/status (READY)
+        Gateway -) DB: Atualiza Status e Notifica Despacho
+    end
+    </pre>
+  </div>
+
+  <div class="footer">
+    Plataforma Unificada de Gestão de Delivery (PUGD) • Renderizado via Mermaid.js
+  </div>
+
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      flowchart: { useMaxWidth: true, htmlLabels: true },
+      er: { useMaxWidth: true },
+      sequence: { useMaxWidth: true }
+    });
+  </script>
+</body>
+</html>

@@ -16,3 +16,6 @@ Desktop.ini
 # Logs e arquivos temporários
 *.log
 scratch/
+
+# Memória do projeto (não enviar para GitHub)
+.memoria/

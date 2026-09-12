@@ -1,0 +1,98 @@
+classDiagram
+    class pedido_123 {
+        <<instance>>
+        id = "ped_00123"
+        usuario_id = "usr_00456"
+        restaurante_id = "rest_00789"
+        status = "PREPARO"
+        valor_total = 145.90
+        data_criacao = "2024-08-31T19:30:00"
+        confirmado_em = "2024-08-31T19:35:00"
+    }
+    class item_001 {
+        <<instance>>
+        id = "item_001"
+        pedido_id = "ped_00123"
+        cardapio_item_id = "item_00045"
+        nome_snapshot = "X-Salada"
+        quantidade = 2
+        preco_unitario = 24.90
+        subtotal = 49.80
+    }
+    class item_002 {
+        <<instance>>
+        id = "item_002"
+        pedido_id = "ped_00123"
+        cardapio_item_id = "item_00112"
+        nome_snapshot = "Coca-Cola 2L"
+        quantidade = 1
+        preco_unitario = 8.50
+        subtotal = 8.50
+    }
+    class produto_0045 {
+        <<instance>>
+        id = "item_00045"
+        nome = "X-Salada"
+        descricao = "Hambúrguer com salada e queijo"
+        preco = 24.90
+    }
+    class produto_0112 {
+        <<instance>>
+        id = "item_00112"
+        nome = "Coca-Cola 2L"
+        descricao = "Refrigerante 2 litros"
+        preco = 8.50
+    }
+    class pedido_678 {
+        <<instance>>
+        id = "ped_00678"
+        usuario_id = "usr_00111"
+        restaurante_id = "rest_00789"
+        status = "CANCELADO"
+        valor_total = 0.00
+        data_criacao = "2024-08-31T18:45:00"
+    }
+    class item_003 {
+        <<instance>>
+        id = "item_003"
+        pedido_id = "ped_00678"
+        cardapio_item_id = "item_00112"
+        nome_snapshot = "Coca-Cola 2L"
+        quantidade = 1
+        preco_unitario = 8.50
+        subtotal = 8.50
+    }
+    class usuario_00456 {
+        <<instance>>
+        id = "usr_00456"
+        nome = "João Silva"
+        email = "joao@email.com"
+        cpf_cnpj = "123.456.789-00"
+        tipo = "cliente"
+    }
+    class usuario_00111 {
+        <<instance>>
+        id = "usr_00111"
+        nome = "Maria Santos"
+        email = "maria@email.com"
+        cpf_cnpj = "987.654.321-00"
+        tipo = "cliente"
+    }
+    class restaurante_00789 {
+        <<instance>>
+        id = "rest_00789"
+        cnpj = "12.345.678/0001-99"
+        razao_social = "Restaurante Saboroso Ltda"
+        nome_fantasia = "Saboroso"
+    }
+
+    %% Relacionamentos de instância
+    pedido_123 *-- item_001
+    pedido_123 *-- item_002
+    pedido_678 *-- item_003
+    item_001 --> produto_0045
+    item_002 --> produto_0112
+    usuario_00456 --> pedido_123
+    usuario_00111 --> pedido_678
+    restaurante_00789 --> pedido_123
+    restaurante_00789 --> pedido_678

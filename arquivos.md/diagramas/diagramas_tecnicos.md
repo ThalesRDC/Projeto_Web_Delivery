@@ -308,3 +308,4 @@ flowchart TB
     OrderRepoImpl --> Postgres
     FiscalAdapterImpl --> SefazGateway
     OrderController --> RedisCache
+```
