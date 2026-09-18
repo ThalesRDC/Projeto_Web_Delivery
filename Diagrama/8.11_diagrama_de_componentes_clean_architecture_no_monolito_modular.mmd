@@ -1,0 +1,59 @@
+flowchart TB
+    subgraph Drivers["Camada 4: Frameworks & Drivers (Detalhes de Infraestrutura)"]
+        FastAPIWebServer[FastAPI Web Server / Routers]
+        NextJsApp[Next.js PWA / Client Web]
+        PostgresDB[(PostgreSQL 16 Relacional)]
+        ThermalPrinterDriver[Driver Impressora ESC/POS]
+        TecSpeedApi[Provedor Fiscal API NFC-e]
+    end
+
+    subgraph Adapters["Camada 3: Interface Adapters (Controladores e Repositórios)"]
+        OrderController[OrderHttpController]
+        CaixaController[CaixaHttpController]
+        KdsController[KdsHttpController]
+        OrderRepoPostgres[OrderRepositoryPostgres]
+        CaixaRepoPostgres[CaixaRepositoryPostgres]
+        FiscalAdapter[TecSpeedFiscalAdapter]
+    end
+
+    subgraph Application["Camada 2: Application (Casos de Uso)"]
+        CriarPedidoUC[CriarPedidoUseCase]
+        AvancarStatusUC[AvancarStatusPedidoUseCase]
+        FecharCaixaUC[FecharCaixaCegoUseCase]
+        EmitirNfceUC[EmitirNfceUseCase]
+    end
+
+    subgraph Domain["Camada 1: Domain (Núcleo Puro de Regras de Negócio)"]
+        PedidoEntity[Pedido & ItemPedido Aggregate Root]
+        CaixaEntity[CaixaSessao Aggregate Root]
+        CardapioEntity[CardapioItem Entity]
+        OrderRepoPort[[OrderRepositoryPort Interface]]
+        CaixaRepoPort[[CaixaRepositoryPort Interface]]
+        FiscalPort[[FiscalServicePort Interface]]
+    end
+
+    NextJsApp --> FastAPIWebServer
+    FastAPIWebServer --> OrderController
+    FastAPIWebServer --> CaixaController
+    FastAPIWebServer --> KdsController
+
+    OrderController --> CriarPedidoUC
+    KdsController --> AvancarStatusUC
+    CaixaController --> FecharCaixaUC
+    CriarPedidoUC --> EmitirNfceUC
+
+    CriarPedidoUC --> PedidoEntity
+    CriarPedidoUC --> OrderRepoPort
+    AvancarStatusUC --> PedidoEntity
+    FecharCaixaUC --> CaixaEntity
+    FecharCaixaUC --> CaixaRepoPort
+    EmitirNfceUC --> FiscalPort
+
+    OrderRepoPostgres -.implements.-> OrderRepoPort
+    CaixaRepoPostgres -.implements.-> CaixaRepoPort
+    FiscalAdapter -.implements.-> FiscalPort
+
+    OrderRepoPostgres --> PostgresDB
+    CaixaRepoPostgres --> PostgresDB
+    OrderController --> ThermalPrinterDriver
+    FiscalAdapter --> TecSpeedApi

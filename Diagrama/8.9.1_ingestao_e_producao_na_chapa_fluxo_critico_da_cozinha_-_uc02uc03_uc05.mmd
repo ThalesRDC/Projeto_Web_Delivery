@@ -1,0 +1,21 @@
+sequenceDiagram
+    autonumber
+    actor Ator as Cliente / Atendente
+    participant API as OrderGateway (FastAPI)
+    participant DB as PostgreSQL (ACID)
+    participant Printer as Impressora Térmica (Chapa)
+
+    Ator ->> API: POST /api/v1/pedidos (com X-Idempotency-Key)
+    API ->> DB: Verificar se chave_idempotencia já existe
+    alt Chave já existente (Reenvio Duplicado)
+        DB -->> API: Pedido original encontrado
+        API -->> Ator: HTTP 200 OK (Retorna Pedido #42 sem duplicar chapa)
+    else Chave Inédita (Fluxo Normal)
+        API ->> DB: INSERT INTO pedidos, pedido_itens, pagamentos
+        DB -->> API: Pedido persistido com ID e número diário
+        
+        API -) Printer: Disparo ESC/POS via USB/Socket (< 1s)
+        Note over Printer: Cupom impresso e pendurado na chapa
+        
+        API -->> Ator: HTTP 201 Created (Pedido #42 Confirmado)
+    end

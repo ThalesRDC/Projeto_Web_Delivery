@@ -1,0 +1,123 @@
+classDiagram
+    class Usuario {
+        -UUID id
+        -String nome
+        -String login
+        -String senhaHash
+        +autenticar(senha: String) bool
+    }
+
+    class Atendente {
+        -String turno
+        +registrarPedido(dados) Pedido
+        +abrirCaixa(saldoInicial: Decimal) CaixaSessao
+        +declararFechamento(valores) void
+    }
+
+    class Administrador {
+        -String nivelPermissao
+        +cadastrarItemCardapio(item) CardapioItem
+        +gerarRelatorioVendas(inicio, fim) Relatorio
+        +homologarDivergenciaCaixa(caixaId) void
+    }
+
+    class Cliente {
+        -UUID id
+        -String nome
+        -String telefone
+        -String endereco
+        +consultarCardapio() List~CardapioItem~
+        +submeterPedido(itens, endereco, pagamento) Pedido
+    }
+
+    class CardapioItem {
+        -UUID id
+        -String nome
+        -String descricao
+        -Decimal preco
+        -String categoria
+        -bool disponivel
+        +ativar() void
+        +desativar() void
+        +atualizarPreco(novoPreco: Decimal) void
+    }
+
+    class Pedido {
+        -UUID id
+        -int numeroDiario
+        -String origemCanal
+        -StatusPedido status
+        -Decimal taxaEntrega
+        -Decimal valorTotal
+        -String chaveIdempotencia
+        -DateTime criadoEm
+        +adicionarItem(item: ItemPedido) void
+        +removerItem(itemId: UUID) void
+        +calcularTotal() Decimal
+        +avancarStatus(novoStatus: StatusPedido) void
+        +cancelar(motivo: String) void
+    }
+
+    class ItemPedido {
+        -UUID id
+        -int quantidade
+        -Decimal precoUnitario
+        -String observacoes
+        +calcularSubtotal() Decimal
+    }
+
+    class Pagamento {
+        -UUID id
+        -String metodo
+        -Decimal valorPago
+        -String statusTransacao
+        -DateTime registradoEm
+        +confirmar() void
+    }
+
+    class DocumentoFiscal {
+        -UUID id
+        -String chaveAcesso
+        -String numeroNfce
+        -String statusEmissao
+        -DateTime emitidoEm
+        +registrarSucesso(chave: String) void
+        +registrarFalha(motivo: String) void
+    }
+
+    class CaixaSessao {
+        -UUID id
+        -DateTime aberturaEm
+        -DateTime fechamentoEm
+        -Decimal saldoInicial
+        -Decimal totalEntradasDeclaradas
+        -Decimal totalEntradasSistema
+        -Decimal diferencaApurada
+        -String justificativaDivergencia
+        +adicionarMovimentacao(valor: Decimal, tipo: String) void
+        +fecharCaixa(declarado: Decimal, justificativa: String) void
+    }
+
+    class DespachoEntrega {
+        -UUID id
+        -String nomeMotoboy
+        -DateTime saidaEm
+        -DateTime entregaEm
+        -String status
+        +marcarEmRota() void
+        +confirmarEntrega() void
+    }
+
+    Administrador --|> Atendente
+    Usuario <|-- Atendente
+    Usuario <|-- Administrador
+
+    Cliente "1" -- "0..*" Pedido : realiza
+    Pedido *-- "1..*" ItemPedido : compõe
+    ItemPedido --> "1" CardapioItem : referencia
+    Pedido "1" o-- "1" Pagamento : liquida
+    Pedido "1" o-- "0..1" DocumentoFiscal : emite
+    Pedido "1" o-- "0..1" DespachoEntrega : despacha
+    CaixaSessao "1" o-- "0..*" Pagamento : consolida
+    Atendente "1" -- "0..*" CaixaSessao : opera
+    Atendente "1" -- "0..*" Pedido : registra

@@ -1,0 +1,13 @@
+stateDiagram-v2
+    [*] --> Criado : Pedido submetido (Web / PDV)
+    Criado --> EmPreparo : Cozinha aceita e imprime cupom
+    Criado --> Cancelado : Loja recusa ou cancelamento imediato
+    
+    EmPreparo --> Pronto : Chapa finaliza e embala
+    EmPreparo --> Cancelado : Falta de insumo na chapa
+
+    Pronto --> Entregue : Motoboy entrega e dá baixa
+    Pronto --> Cancelado : Cliente desiste antes do despacho
+    
+    Entregue --> [*]
+    Cancelado --> [*]

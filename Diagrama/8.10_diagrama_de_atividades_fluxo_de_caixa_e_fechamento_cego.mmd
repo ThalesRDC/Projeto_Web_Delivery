@@ -1,0 +1,21 @@
+flowchart TD
+    Start((Início do Turno)) --> Abertura[Atendente informa Fundo de Troco Inicial]
+    Abertura --> GravacaoAbertura[Sistema abre Sessão de Caixa com status ABERTO]
+    GravacaoAbertura --> Operacao[Operação do Turno: Vendas em Dinheiro, Cartão, Pix e Sangrias]
+    
+    Operacao --> SolicitacaoFechamento[Fim do Expediente: Atendente aciona Fechamento]
+    SolicitacaoFechamento --> TelaCega[Sistema exibe Tela de Fechamento Cego sem totais do sistema]
+    
+    TelaCega --> Contagem[Atendente conta fisicamente a gaveta e digita valores de cada modalidade]
+    Contagem --> Submissao[Atendente clica em Confirmar Fechamento]
+    
+    Submissao --> Apuracao{"Sistema compara: Declarado == Sistema?"}
+    
+    Apuracao -->|Diferença == 0| EncerramentoNormal[Sistema homologa fechamento com status REGULAR]
+    Apuracao -->|Diferença != 0| ExigeJustificativa[Sistema bloqueia e exige justificativa obrigatória]
+    ExigeJustificativa --> RegistraQuebra[Sistema registra quebra/sobra de caixa e justificativa]
+    RegistraQuebra --> AlertaAdmin[Gera notificação de pendência para o Administrador]
+    AlertaAdmin --> EncerramentoNormal
+    
+    EncerramentoNormal --> ImprimeRelatorioTurno[Imprime comprovante de fechamento de turno]
+    ImprimeRelatorioTurno --> End((Fim do Turno))

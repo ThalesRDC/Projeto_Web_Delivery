@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PUGD — Apresentação Técnica & Simulador Interativo</title>
+  
+  <!-- Tipografia Moderna Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --bg-card: rgba(18, 26, 43, 0.75);
+      --bg-card-hover: rgba(28, 39, 64, 0.85);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-highlight: rgba(99, 102, 241, 0.4);
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent-primary: #6366f1; /* Indigo */
+      --accent-secondary: #06b6d4; /* Cyan */
+      --accent-success: #10b981; /* Emerald */
+      --accent-warning: #f59e0b; /* Amber */
+      --accent-danger: #ef4444; /* Rose */
+      --gradient-accent: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --shadow-glow: 0 0 25px rgba(99, 102, 241, 0.25);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(6, 182, 212, 0.10) 0%, transparent 40%);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* BARRA SUPERIOR / HEADER */
+    header {
+      height: 70px;
+      padding: 0 28px;
+      background: rgba(9, 13, 22, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      background: var(--gradient-accent);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+    }
+
+    .brand-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      color: var(--accent-secondary);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* NAVEGAÇÃO DE ABAS */
+    .nav-tabs {
+      display: flex;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.25s ease;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .nav-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-btn.active {
+      background: var(--gradient-accent);
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.35);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--accent-primary);
+    }
+
+    /* CONTEÚDO PRINCIPAL (ABAS) */
+    main {
+      flex: 1;
+      padding: 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .tab-pane {
+      display: none;
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* =========================================================================
+       ABA 1: SLIDE DECK INTERATIVO
+       ========================================================================= */
+    .slides-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+      position: relative;
+      overflow: hidden;
+      min-height: 640px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide-progress-bar {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      width: 100%;
+    }
+
+    .slide-progress-fill {
+      height: 100%;
+      background: var(--gradient-accent);
+      width: 12.5%;
+      transition: width 0.3s ease;
+    }
+
+    .slide-body {
+      flex: 1;
+      padding: 48px 56px;
+      display: none;
+      animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .slide-body.active {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .slide-tag {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-secondary);
+      margin-bottom: 8px;
+    }
+
+    .slide-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 34px;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 24px;
+      background: linear-gradient(90deg, #fff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .slide-subtitle {
+      font-size: 16px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-width: 900px;
+      margin-bottom: 32px;
+    }
+
+    .slide-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .slide-grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+    }
+
+    .slide-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      transition: all 0.25s;
+    }
+
+    .slide-card:hover {
+      border-color: var(--border-highlight);
+      transform: translateY(-2px);
+    }
+
+    .slide-card h4 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .slide-card p, .slide-card li {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .slide-card ul {
+      list-style-position: inside;
+      margin-top: 8px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .badge-success { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+    .badge-warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+    .badge-info { background: rgba(6, 182, 212, 0.2); color: #38bdf8; }
+
+    /* FOOTER DOS SLIDES */
+    .slide-footer {
+      height: 64px;
+      padding: 0 32px;
+      background: rgba(10, 15, 26, 0.8);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .slide-counter {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .slide-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-slide-nav {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+
+    .btn-slide-nav:hover {
+      background: var(--accent-primary);
+      border-color: var(--accent-primary);
+    }
+
+    /* MODAL DE NOTAS DO APRESENTADOR */
+    .speaker-notes-drawer {
+      background: rgba(13, 20, 36, 0.96);
+      border-top: 1px solid var(--accent-primary);
+      padding: 20px 32px;
+      font-size: 14px;
+      color: #cbd5e1;
+      line-height: 1.6;
+      display: none;
+    }
+
+    .speaker-notes-drawer.open {
+      display: block;
+    }
+
+    .notes-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      color: var(--accent-secondary);
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* =========================================================================
+       ABA 2: SIMULADOR OPERACIONAL (LIVE DEMO)
+       ========================================================================= */
+    .sim-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+    }
+
+    .sim-column {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .sim-col-header {
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sim-col-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* VISÃO CLIENTE */
+    .menu-item-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: var(--radius-sm);
+      margin-bottom: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      transition: all 0.2s;
+    }
+
+    .menu-item-row:hover {
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-add {
+      background: var(--accent-primary);
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-add:hover {
+      background: #4f46e5;
+    }
+
+    .cart-summary {
+      margin-top: auto;
+      background: rgba(10, 15, 26, 0.6);
+      padding: 16px;
+      border-radius: var(--radius-md);
+      border: 1px dashed var(--border-color);
+    }
+
+    .btn-submit-order {
+      width: 100%;
+      margin-top: 12px;
+      background: var(--gradient-accent);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-submit-order:hover {
+      box-shadow: var(--shadow-glow);
+    }
+
+    /* VISÃO COZINHA / KDS */
+    .kds-orders-list {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 250px;
+    }
+
+    .kds-card {
+      background: #1e293b;
+      border-left: 5px solid var(--accent-warning);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      animation: pulseIn 0.3s ease;
+    }
+
+    @keyframes pulseIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .kds-card.pronto {
+      border-left-color: var(--accent-success);
+      background: #0f172a;
+    }
+
+    .thermal-receipt {
+      background: #fff;
+      color: #000;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 16px;
+      border-radius: 4px;
+      font-size: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      border-top: 4px dashed #94a3b8;
+      border-bottom: 4px dashed #94a3b8;
+      margin-top: 16px;
+      display: none;
+    }
+
+    /* VISÃO CAIXA */
+    .blind-box-input {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-color);
+      color: white;
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 12px;
+    }
+
+    .blind-box-input:focus {
+      outline: none;
+      border-color: var(--accent-secondary);
+    }
+
+    /* =========================================================================
+       ABA 3: HUB DE ENGENHARIA & DIAGRAMAS
+       ========================================================================= */
+    .diagrams-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 20px;
+    }
+
+    .diagram-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.25s;
+      cursor: pointer;
+    }
+
+    .diagram-card:hover {
+      border-color: var(--accent-primary);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    }
+
+    .diagram-preview {
+      background: #0f172a;
+      border-radius: var(--radius-sm);
+      min-height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 16px;
+      margin-top: 14px;
+    }
+
+    /* MODAL DE DIAGRAMA AMPLIADO */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 24px;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #0d1527;
+      border: 1px solid var(--accent-primary);
+      border-radius: var(--radius-lg);
+      width: 96vw;
+      max-width: 1450px;
+      height: 92vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 60px rgba(99, 102, 241, 0.4);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 14px 24px;
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .modal-body {
+      flex: 1;
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      background: #0f172a;
+    }
+
+    /* =========================================================================
+       ABA 4: MATRIZ DE RASTREABILIDADE
+       ========================================================================= */
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .matrix-table th {
+      background: rgba(15, 23, 42, 0.95);
+      color: var(--accent-secondary);
+      text-align: left;
+      padding: 14px 18px;
+      font-weight: 700;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .matrix-table td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-color);
+      color: #cbd5e1;
+    }
+
+    .matrix-table tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .code-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 2px 6px;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 4px;
+      color: #38bdf8;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER NAVEGADOR -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo">🍔</div>
+      <div>
+        <div class="brand-title">PUGD — Delivery Unificado</div>
+        <div class="brand-subtitle">Microuniverso Lanchonete Familiar</div>
+      </div>
+    </div>
+
+    <!-- TABS SELECTOR -->
+    <div class="nav-tabs">
+      <button class="nav-btn active" onclick="switchTab('slides')">🎬 Apresentação (Slides)</button>
+      <button class="nav-btn" onclick="switchTab('simulator')">⚡ Simulador Operacional</button>
+      <button class="nav-btn" onclick="switchTab('diagrams')">📐 Engenharia & UML</button>
+      <button class="nav-btn" onclick="switchTab('matrix')">🎯 Rastreabilidade TDD</button>
+    </div>
+
+    <!-- AÇÕES RÁPIDAS -->
+    <div class="header-actions">
+      <button class="btn-secondary" onclick="toggleSpeakerNotes()" id="btnNotes">📝 Roteiro de Fala (N)</button>
+      <button class="btn-secondary" onclick="toggleFullscreen()">⛶ Tela Cheia (F)</button>
+    </div>
+  </header>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main>
+
+    <!-- =======================================================================
+         ABA 1: APRESENTAÇÃO (SLIDE DECK)
+         ======================================================================= -->
+    <div id="tab-slides" class="tab-pane active">
+      <div class="slides-container">
+        <div class="slide-progress-bar">
+          <div class="slide-progress-fill" id="slideProgress"></div>
+        </div>
+
+        <!-- SLIDE 1: CAPA -->
+        <div class="slide-body active" data-slide="1">
+          <div class="slide-tag">Engenharia de Software & Ideação Pragmática</div>
+          <h1 class="slide-title">Plataforma Unificada de Gestão de Delivery</h1>
+          <p class="slide-subtitle">
+            Modelagem DDD, Clean Architecture e Disciplina TDD adaptadas à operação física real de uma lanchonete familiar (20-60 pedidos/dia).
+          </p>
+          <div class="slide-grid-3">
+            <div class="slide-card">
+              <h4>🎯 Problema Real</h4>
+              <p>Eliminação de retrabalho manual, dependência de taxas de plataformas terceiras e ruídos do WhatsApp.</p>
+            </div>
+            <div class="slide-card">
+              <h4>⚖️ Trade-off Sênior</h4>
+              <p>Rejeição consciente de microsserviços e over-engineering em favor de um Monolito Modular conciso.</p>
+            </div>
+            <div class="slide-card">
+              <h4>🛡️ Blindagem de Domínio</h4>
+              <p>Fechamento cego de caixa, idempotência no banco de dados e impressão direta na chapa.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 2: O MICROUNIVERSO REAL -->
+        <div class="slide-body" data-slide="2">
+          <div class="slide-tag">Diagnóstico Operacional</div>
+          <h2 class="slide-title">O Microuniverso Real vs. O Restaurante Genérico</h2>
+          <p class="slide-subtitle">A engenharia deve refletir a realidade dos 5 operadores e os gargalos do balcão e da cozinha.</p>
+          <div class="slide-grid-2">
+            <div class="slide-card">
+              <h4>👥 A Equipe Operacional</h4>
+              <ul>
+                <li><strong>Chapeiro/Montador:</strong> Dificuldade com telas sensíveis e digitação lenta. Precisa de papel impresso.</li>
+                <li><strong>Atendentes/Motoboys:</strong> Ficam indisponíveis no balcão quando saem para entregas.</li>
+                <li><strong>Volume:</strong> 20 a 60 pedidos/dia, pico concentrado em 3 horas noturnas.</li>
+              </ul>
+            </div>
+            <div class="slide-card">
+              <h4>⚠️ Dores do Negócio Atual</h4>
+              <ul>
+                <li><strong>Taxas Abusivas:</strong> Até 27% retidos por marketplaces terceiros.</li>
+                <li><strong>Pedidos Ambíguos no WhatsApp:</strong> <em>"2 x-tudo, 1 sem tomate"</em> em duas mensagens gera lanche errado.</li>
+                <li><strong>Inconsistência de Caixa:</strong> Vendas divididas em 2 maquinetas, dinheiro e Pix sem conciliação cega.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 3: O COMBATE AO OVER-ENGINEERING -->
+        <div class="slide-body" data-slide="3">
+          <div class="slide-tag">Decisões Críticas de Arquitetura</div>
+          <h2 class="slide-title">Combate Rigoroso ao Over-Engineering</h2>
+          <p class="slide-subtitle">Saber o que <strong>NÃO</strong> construir é o sinal mais evidente de maturidade técnica.</p>
+          <div class="slide-grid-2">
+            <div class="slide-card" style="border-color: rgba(239, 68, 68, 0.4);">
+              <h4 style="color: #f87171;">❌ Descartado do MVP (Complexidade Tóxica)</h4>
+              <ul>
+                <li><strong>Microsserviços / Cell-Based:</strong> Custo desnecessário de deploy e latência distribuída.</li>
+                <li><strong>KDS Offline / Vector Clocks:</strong> Internet local estável; relógios lógicos são preciosismo.</li>
+                <li><strong>Split Contábil Duplo:</strong> Motoboys são próprios e pagos por diária/entrega simples.</li>
+                <li><strong>IA / LLM no Pedido:</strong> Risco operacional; MVP adota lista rápida assistida.</li>
+              </ul>
+            </div>
+            <div class="slide-card" style="border-color: rgba(16, 185, 129, 0.4);">
+              <h4 style="color: #34d399;">✅ Adotado no MVP (Eficiência Direta)</h4>
+              <ul>
+                <li><strong>Monolito Modular (FastAPI + PostgreSQL):</strong> Transações ACID para pedidos e caixa.</li>
+                <li><strong>Impressão Térmica ESC/POS na Chapa:</strong> Papel grampeado na sacola identifica o pedido.</li>
+                <li><strong>Idempotência no Banco:</strong> Chave única rejeita duplicações sem depender de Redis complexo.</li>
+                <li><strong>NFC-e Assíncrona Desacoplada:</strong> SEFAZ fora do ar jamais paralisa a cozinha.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 4: DOMAIN-DRIVEN DESIGN -->
+        <div class="slide-body" data-slide="4">
+          <div class="slide-tag">Modelagem Tática DDD</div>
+          <h2 class="slide-title">Bounded Contexts & Linguagem Ubíqua</h2>
+          <p class="slide-subtitle">Blindagem das regras de negócio organizadas por 4 contextos delimitados bem definidos.</p>
+          <div class="slide-grid-2">
+            <div class="slide-card">
+              <h4>🏛️ 4 Bounded Contexts Coesos</h4>
+              <ul>
+                <li><strong>Ingestão & Pedidos:</strong> Cardápio digital web e Lançador rápido balcão/WhatsApp.</li>
+                <li><strong>Cozinha & KDS:</strong> Fila cronológica e impressão térmica na chapa.</li>
+                <li><strong>Caixa & Fiscal:</strong> Fechamento cego e transmissão assíncrona da NFC-e.</li>
+                <li><strong>Relatórios Básicos:</strong> Vendas por período e ranking de itens mais saídos.</li>
+              </ul>
+            </div>
+            <div class="slide-card">
+              <h4>🧱 Aggregates & Invariantes</h4>
+              <ul>
+                <li><strong>Pedido (Root) + ItemPedido:</strong> Valida transição de status (FSM) e cálculo de subtotal.</li>
+                <li><strong>CaixaSessao (Root):</strong> Invariante de fechamento cego (compara declarado vs. apurado).</li>
+                <li><strong>CardapioItem (Root):</strong> Controle de preço e disponibilidade de insumos.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 5: MODELAGEM VISUAL & UML -->
+        <div class="slide-body" data-slide="5">
+          <div class="slide-tag">Engenharia Formal (SKILL.md)</div>
+          <h2 class="slide-title">Conformidade Metodológica e Rastreabilidade</h2>
+          <p class="slide-subtitle">Do requisito funcional ao teste de unidade: uma esteira 100% conectada.</p>
+          <div class="slide-grid-3">
+            <div class="slide-card">
+              <h4>1. Casos de Uso & Atores</h4>
+              <p>Herança formal (<code>Admin --|> Atendente</code>), <code><<include>></code> em NFC-e e <code><<extend>></code> em descontos.</p>
+            </div>
+            <div class="slide-card">
+              <h4>2. Diagrama de Classes & DER</h4>
+              <p>Composição (<code>Pedido *-- ItemPedido</code>), agregação e banco relacional ACID com chaves UUID.</p>
+            </div>
+            <div class="slide-card">
+              <h4>3. FSM do Pedido</h4>
+              <p>Ciclo enxuto: <code>Criado → EmPreparo → Pronto → Entregue</code> sem estados mortos.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 6: A REGRA DE OURO - FECHAMENTO CEGO -->
+        <div class="slide-body" data-slide="6">
+          <div class="slide-tag">Segurança Operacional</div>
+          <h2 class="slide-title">Fechamento Cego de Caixa & Idempotência</h2>
+          <p class="slide-subtitle">Como a arquitetura impede fraudes, erros e duplicidade de comida na chapa.</p>
+          <div class="slide-grid-2">
+            <div class="slide-card">
+              <h4>🔒 Fechamento Cego de Caixa</h4>
+              <p>O atendente digita o que contou na gaveta (dinheiro, comprovantes) <strong>sem ver</strong> o total do sistema.</p>
+              <p style="margin-top: 8px;">Divergência detectada? O sistema <strong>obriga</strong> a digitação de justificativa e aciona o gerente para homologação.</p>
+            </div>
+            <div class="slide-card">
+              <h4>⚡ Chave de Idempotência Simples</h4>
+              <p>Frontend gera <code>X-Idempotency-Key</code> única por clique. O PostgreSQL aplica constraint única.</p>
+              <p style="margin-top: 8px;">Cliente clicou 3 vezes? O sistema retorna o pedido existente sem imprimir 3 hambúrgueres na chapa.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 7: CLEAN ARCHITECTURE & TDD -->
+        <div class="slide-body" data-slide="7">
+          <div class="slide-tag">Qualidade de Código</div>
+          <h2 class="slide-title">Clean Architecture & TDD Estrito</h2>
+          <p class="slide-subtitle">Regra de dependência: Frameworks e Banco são detalhes periféricos substituíveis.</p>
+          <div class="slide-grid-3">
+            <div class="slide-card">
+              <h4>Domain (Núcleo)</h4>
+              <p>Entidades e Value Objects em Python puro. Zero imports de banco ou framework.</p>
+            </div>
+            <div class="slide-card">
+              <h4>Application (Use Cases)</h4>
+              <p>Orquestração das regras de negócio testada com <em>In-Memory Repositories</em>.</p>
+            </div>
+            <div class="slide-card">
+              <h4>Adapters & Drivers</h4>
+              <p>FastAPI, PostgreSQL e Impressora ESC/POS implementam as interfaces (ports) do núcleo.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 8: TRANSIÇÃO PARA PRÓXIMOS TÓPICOS -->
+        <div class="slide-body" data-slide="8">
+          <div class="slide-tag">Transição</div>
+          <h2 class="slide-title">A Operação Física é Soberana</h2>
+          <p class="slide-subtitle">O software existe para potencializar a lanchonete, e não para virar mais um problema durante o turno.</p>
+          <div class="slide-card" style="background: rgba(99, 102, 241, 0.1); border-color: var(--accent-primary); padding: 24px;">
+            <h4 style="color: #a5b4fc; font-size: 18px; margin-bottom: 8px;">🚀 Próximo Tópico: Validação Prática da Solução</h4>
+            <p style="font-size: 14px; color: #e2e8f0; margin-top: 4px; line-height: 1.5;">
+              Concluída a conceituação arquitetural e as decisões de engenharia, avançamos para os tópicos de demonstração prática e inspeção técnica:
+            </p>
+            <div style="display: flex; gap: 12px; margin-top: 18px; flex-wrap: wrap;">
+              <button onclick="switchTab('simulator')" class="btn-add" style="padding: 12px 20px; font-size: 14px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; border-radius: 8px; background: var(--gradient-accent); color: #fff; border: none; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);">
+                ⚡ 1. Simulador Operacional (Live Demo) →
+              </button>
+              <button onclick="switchTab('diagrams')" class="btn-secondary" style="padding: 12px 18px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; border-radius: 8px; background: rgba(255, 255, 255, 0.08); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.12);">
+                📐 2. Hub de Diagramas UML (10 Modelos) →
+              </button>
+              <button onclick="switchTab('matrix')" class="btn-secondary" style="padding: 12px 18px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; border-radius: 8px; background: rgba(255, 255, 255, 0.08); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.12);">
+                🎯 3. Matriz de Rastreabilidade TDD →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FOOTER / CONTROLES DE SLIDE -->
+        <div class="slide-footer">
+          <div class="slide-counter" id="slideIndicator">SLIDE 01 / 08</div>
+          <div class="slide-controls">
+            <button class="btn-slide-nav" onclick="prevSlide()" title="Slide Anterior (Seta Esquerda)">←</button>
+            <button class="btn-slide-nav" onclick="nextSlide()" title="Próximo Slide (Seta Direita)">→</button>
+          </div>
+        </div>
+
+        <!-- NOTAS DO APRESENTADOR (DRAWER) -->
+        <div class="speaker-notes-drawer" id="speakerNotes">
+          <div class="notes-header">
+            <span>🗣️ Roteiro de Fala para o Apresentador</span>
+            <span style="font-size: 11px; opacity: 0.7;">Pressione 'N' para alternar</span>
+          </div>
+          <div id="notesText">
+            "Bom dia professor e banca. Hoje apresentamos a Plataforma Unificada de Gestão de Delivery. Diferente de projetos genéricos, nosso foco foi o microuniverso de uma lanchonete familiar real..."
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =======================================================================
+         ABA 2: SIMULADOR OPERACIONAL (LIVE DEMO)
+         ======================================================================= -->
+    <div id="tab-simulator" class="tab-pane">
+      <div style="margin-bottom: 16px;">
+        <h2 style="font-family: 'Outfit'; font-size: 24px;">Simulador Operacional da Lanchonete</h2>
+        <p style="color: var(--text-muted); font-size: 14px;">Demonstre a operação em tempo real: o cliente pede no site, a cozinha imprime na chapa e o caixa realiza o fechamento cego.</p>
+      </div>
+
+      <div class="sim-container">
+        <!-- COLUNA 1: CARDÁPIO CLIENTE -->
+        <div class="sim-column">
+          <div class="sim-col-header">
+            <div class="sim-col-title">📱 1. Cardápio Web (Cliente)</div>
+            <span class="badge badge-info">Canal Próprio</span>
+          </div>
+
+          <div class="menu-item-row">
+            <div>
+              <div style="font-weight: 600; font-size: 14px;">X-Tudo Especial</div>
+              <div style="font-size: 12px; color: var(--text-muted);">Hambúrguer, bacon, ovo, queijo</div>
+              <div style="font-weight: 700; color: #34d399; font-size: 13px;">R$ 28,00</div>
+            </div>
+            <button class="btn-add" onclick="simAddToCart('X-Tudo Especial', 28.00)">+ Adicionar</button>
+          </div>
+
+          <div class="menu-item-row">
+            <div>
+              <div style="font-weight: 600; font-size: 14px;">X-Bacon Artesanal</div>
+              <div style="font-size: 12px; color: var(--text-muted);">Bacon duplo, queijo prato</div>
+              <div style="font-weight: 700; color: #34d399; font-size: 13px;">R$ 26,00</div>
+            </div>
+            <button class="btn-add" onclick="simAddToCart('X-Bacon Artesanal', 26.00)">+ Adicionar</button>
+          </div>
+
+          <div class="menu-item-row">
+            <div>
+              <div style="font-weight: 600; font-size: 14px;">Coca-Cola 350ml</div>
+              <div style="font-size: 12px; color: var(--text-muted);">Lata gelada</div>
+              <div style="font-weight: 700; color: #34d399; font-size: 13px;">R$ 7,00</div>
+            </div>
+            <button class="btn-add" onclick="simAddToCart('Coca-Cola 350ml', 7.00)">+ Adicionar</button>
+          </div>
+
+          <div class="cart-summary">
+            <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom: 6px;">
+              <span>Subtotal Itens:</span>
+              <span id="simCartSubtotal">R$ 0,00</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom: 6px;">
+              <span>Taxa Entrega:</span>
+              <span>R$ 6,00</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-weight:700; font-size:15px; color:#fff; border-top:1px solid var(--border-color); padding-top:6px;">
+              <span>Total Pedido:</span>
+              <span id="simCartTotal">R$ 6,00</span>
+            </div>
+            <button class="btn-submit-order" onclick="simSubmitOrder()">🚀 Finalizar Pedido Web</button>
+          </div>
+        </div>
+
+        <!-- COLUNA 2: COZINHA & IMPRESSÃO CHAPA -->
+        <div class="sim-column">
+          <div class="sim-col-header">
+            <div class="sim-col-title">🍳 2. Cozinha / Chapa (KDS)</div>
+            <span class="badge badge-warning" id="kdsCountBadge">0 Pedidos</span>
+          </div>
+
+          <div class="kds-orders-list" id="kdsList">
+            <div style="text-align: center; color: var(--text-muted); font-size: 13px; margin: auto;">
+              Aguardando pedidos do cardápio web...
+            </div>
+          </div>
+
+          <!-- COMPROVANTE TÉRMICO SIMULADO -->
+          <div class="thermal-receipt" id="thermalPaper">
+            <div style="text-align: center; font-weight: bold; border-bottom: 1px dashed #000; padding-bottom: 6px;">
+              *** LANCHONETE FAMILIAR ***<br>
+              CUPOM DE PRODUÇÃO (CHAPA)
+            </div>
+            <div style="margin: 8px 0; font-size: 11px;" id="thermalContent">
+              <!-- Conteúdo Dinâmico -->
+            </div>
+            <div style="text-align: center; border-top: 1px dashed #000; padding-top: 6px; font-size: 10px;">
+              GRAMPEAR NA SACOLA DA ENTREGA
+            </div>
+          </div>
+        </div>
+
+        <!-- COLUNA 3: CAIXA / FECHAMENTO CEGO -->
+        <div class="sim-column">
+          <div class="sim-col-header">
+            <div class="sim-col-title">💰 3. Caixa (Fechamento Cego)</div>
+            <span class="badge badge-success">Auditoria</span>
+          </div>
+
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
+            O operador <strong>não vê</strong> o total do sistema. Ele declara o que contou fisicamente:
+          </p>
+
+          <label style="font-size: 12px; color: var(--text-muted);">Dinheiro em Gaveta (R$):</label>
+          <input type="number" class="blind-box-input" id="blindCash" placeholder="Ex: 50.00" value="0.00">
+
+          <label style="font-size: 12px; color: var(--text-muted);">Comprovantes de Cartão / Pix (R$):</label>
+          <input type="number" class="blind-box-input" id="blindCard" placeholder="Ex: 41.00" value="0.00">
+
+          <button class="btn-submit-order" style="background: #3b82f6;" onclick="simCloseCash()">🔒 Fechar Caixa do Turno</button>
+
+          <div id="cashResult" style="margin-top: 14px; font-size: 13px; display: none; padding: 12px; border-radius: 8px;">
+            <!-- Resultado de divergência -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =======================================================================
+         ABA 3: HUB DE ENGENHARIA & DIAGRAMAS
+         ======================================================================= -->
+    <div id="tab-diagrams" class="tab-pane">
+      <div style="margin-bottom: 16px;">
+        <h2 style="font-family: 'Outfit'; font-size: 24px;">Hub de Diagramas Técnicos (Mermaid UML)</h2>
+        <p style="color: var(--text-muted); font-size: 14px;">Clique em qualquer diagrama para inspecionar em alta resolução e navegar pela modelagem técnica.</p>
+      </div>
+
+      <div class="diagrams-grid">
+        <!-- DIAGRAMA 1: CASOS DE USO -->
+        <div class="diagram-card" onclick="openDiagramModal('8.1 Casos de Uso Geral', '8.1_diagrama_de_casos_de_uso_geral.html')">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="font-size: 16px; font-weight: 700;">8.1 Casos de Uso Geral</h3>
+            <span class="badge badge-info">Comportamental</span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Atores, herança (Admin -> Atendente), include e extend.</p>
+          <div class="diagram-preview">
+            <span style="color: var(--accent-secondary); font-size: 13px;">🔍 Clique para abrir (Zoom & Pan)</span>
+          </div>
+        </div>
+
+        <!-- DIAGRAMA 2: DIAGRAMA DE CLASSES -->
+        <div class="diagram-card" onclick="openDiagramModal('8.3 Diagrama de Classes', '8.3_diagrama_de_classes.html')">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="font-size: 16px; font-weight: 700;">8.3 Diagrama de Classes</h3>
+            <span class="badge badge-info">Estrutural</span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Composição de pedidos, métodos de domínio e visibilidade (+/-).</p>
+          <div class="diagram-preview">
+            <span style="color: var(--accent-secondary); font-size: 13px;">🔍 Clique para abrir (Zoom & Pan)</span>
+          </div>
+        </div>
+
+        <!-- DIAGRAMA 3: DER -->
+        <div class="diagram-card" onclick="openDiagramModal('8.5 DER Lógico', '8.5_diagrama_entidade-relacionamento_der_logico.html')">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="font-size: 16px; font-weight: 700;">8.5 DER Lógico (Relacional)</h3>
+            <span class="badge badge-info">Banco de Dados</span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Tabelas, cardinalidades, PKs e chave única de idempotência.</p>
+          <div class="diagram-preview">
+            <span style="color: var(--accent-secondary); font-size: 13px;">🔍 Clique para abrir (Zoom & Pan)</span>
+          </div>
+        </div>
+
+        <!-- DIAGRAMA 4: OBJETOS -->
+        <div class="diagram-card" onclick="openDiagramModal('8.6 Diagrama de Objetos', '8.6_diagrama_de_objetos_snapshot_em_tempo_de_execucao.html')">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="font-size: 16px; font-weight: 700;">8.6 Diagrama de Objetos</h3>
+            <span class="badge badge-info">Snapshot Real</span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Instâncias vivas de Pedido #42, itens, pagamento e sessão de caixa.</p>
+          <div class="diagram-preview">
+            <span style="color: var(--accent-secondary); font-size: 13px;">🔍 Clique para abrir (Zoom & Pan)</span>
+          </div>
+        </div>
+
+        <!-- DIAGRAMA 5: ESTADOS -->
+        <div class="diagram-card" onclick="openDiagramModal('8.7 Diagrama de Estados (FSM)', '8.7_diagrama_de_estados_do_pedido_ciclo_de_vida_simplificado.html')">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="font-size: 16px; font-weight: 700;">8.7 Estados do Pedido</h3>
+            <span class="badge badge-warning">Ciclo de Vida</span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">FSM simplificada: Criado -> EmPreparo -> Pronto -> Entregue.</p>
+          <div class="diagram-preview">
+            <span style="color: var(--accent-secondary); font-size: 13px;">🔍 Clique para abrir (Zoom & Pan)</span>
+          </div>
+        </div>
+
+        <!-- DIAGRAMA 6: ROBUSTEZ BCE -->
+        <div class="diagram-card" onclick="openDiagramModal('8.8 Robustez BCE: Realizar Pedido', 'diagrama_de_robustez_caso_de_uso_realizar_lancar_pedido.html')">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="font-size: 16px; font-weight: 700;">8.8 Robustez (BCE)</h3>
+            <span class="badge badge-info">Clean Arch Bridge</span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Boundary, Control e Entity do caso de uso de lançamento de pedido.</p>
+          <div class="diagram-preview">
+            <span style="color: var(--accent-secondary); font-size: 13px;">🔍 Clique para abrir (Zoom & Pan)</span>
+          </div>
+        </div>
+
+        <!-- DIAGRAMA 7: SEQUÊNCIA 8.9.1 INGESTÃO & CHAPA -->
+        <div class="diagram-card" onclick="openDiagramModal('8.9.1 Sequência: Ingestão e Produção na Chapa', '8.9.1_ingestao_e_producao_na_chapa_fluxo_critico_da_cozinha_-_uc02uc03_uc05.html')" style="border-color: rgba(99, 102, 241, 0.4);">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="font-size: 16px; font-weight: 700; color:#a5b4fc;">8.9.1 Ingestão & Chapa</h3>
+            <span class="badge badge-warning">Cozinha Síncrona</span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Caminho crítico: Idempotência, ACID no PostgreSQL e disparo térmico ESC/POS.</p>
+          <div class="diagram-preview">
+            <span style="color: var(--accent-secondary); font-size: 13px;">🔍 Clique para abrir (Zoom & Pan)</span>
+          </div>
+        </div>
+
+        <!-- DIAGRAMA 8: SEQUÊNCIA 8.9.2 FATURAMENTO SEFAZ -->
+        <div class="diagram-card" onclick="openDiagramModal('8.9.2 Sequência: Faturamento Fiscal Assíncrono', '8.9.2_faturamento_fiscal_assincrono_worker_sefaz_-_uc11.html')" style="border-color: rgba(16, 185, 129, 0.4);">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="font-size: 16px; font-weight: 700; color:#6ee7b7;">8.9.2 Faturamento Fiscal</h3>
+            <span class="badge badge-success">Assíncrono</span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Worker NFC-e em background: Desacoplamento da SEFAZ com política de retry.</p>
+          <div class="diagram-preview">
+            <span style="color: var(--accent-secondary); font-size: 13px;">🔍 Clique para abrir (Zoom & Pan)</span>
+          </div>
+        </div>
+
+        <!-- DIAGRAMA 9: ATIVIDADES DO CAIXA -->
+        <div class="diagram-card" onclick="openDiagramModal('8.10 Fechamento Cego', '8.10_diagrama_de_atividades_fluxo_de_caixa_e_fechamento_cego.html')">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="font-size: 16px; font-weight: 700;">8.10 Atividades do Caixa</h3>
+            <span class="badge badge-info">Processo</span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Fluxo de conferência cega e resolução de divergências.</p>
+          <div class="diagram-preview">
+            <span style="color: var(--accent-secondary); font-size: 13px;">🔍 Clique para abrir (Zoom & Pan)</span>
+          </div>
+        </div>
+
+        <!-- DIAGRAMA 10: COMPONENTES CLEAN ARCH -->
+        <div class="diagram-card" onclick="openDiagramModal('8.11 Componentes Clean Arch', '8.11_diagrama_de_componentes_clean_architecture_no_monolito_modular.html')">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="font-size: 16px; font-weight: 700;">8.11 Componentes Clean Arch</h3>
+            <span class="badge badge-info">Arquitetura</span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">4 camadas do Monolito Modular e direção de dependências.</p>
+          <div class="diagram-preview">
+            <span style="color: var(--accent-secondary); font-size: 13px;">🔍 Clique para abrir (Zoom & Pan)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =======================================================================
+         ABA 4: MATRIZ DE RASTREABILIDADE TDD
+         ======================================================================= -->
+    <div id="tab-matrix" class="tab-pane">
+      <div style="margin-bottom: 16px;">
+        <h2 style="font-family: 'Outfit'; font-size: 24px;">Matriz de Rastreabilidade RF → Casos de Uso → TDD</h2>
+        <p style="color: var(--text-muted); font-size: 14px;">Garantia de que 100% dos requisitos funcionais possuem casos de uso equivalentes e testes automatizados comprovando a aceitação.</p>
+      </div>
+
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th>RF ID</th>
+            <th>Caso de Uso (Seção 8.1)</th>
+            <th>Teste Unitário (Domínio)</th>
+            <th>Teste de Use Case (Application)</th>
+            <th>Teste de Integração (PostgreSQL)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>RF01</strong></td>
+            <td>UC01: Consultar Cardápio</td>
+            <td><span class="code-tag">test_cardapio_item_disponibilidade()</span></td>
+            <td><span class="code-tag">test_listar_itens_ativos_use_case()</span></td>
+            <td><span class="code-tag">test_repo_consultar_cardapio_postgres()</span></td>
+          </tr>
+          <tr>
+            <td><strong>RF02</strong></td>
+            <td>UC03: Registrar Pedido PDV</td>
+            <td><span class="code-tag">test_pedido_adicionar_item_calculo_total()</span></td>
+            <td><span class="code-tag">test_registrar_pedido_pdv_sucesso()</span></td>
+            <td><span class="code-tag">test_post_pedido_pdv_api_retorna_201()</span></td>
+          </tr>
+          <tr>
+            <td><strong>RF03</strong></td>
+            <td>UC02 / UC03: Unificar Fila</td>
+            <td><span class="code-tag">test_pedido_origem_canal_valida()</span></td>
+            <td><span class="code-tag">test_pedidos_multiplos_canais_mesma_fila()</span></td>
+            <td><span class="code-tag">test_listar_fila_cozinha_unificada_db()</span></td>
+          </tr>
+          <tr>
+            <td><strong>RF04</strong></td>
+            <td>UC02 / UC03: Idempotência</td>
+            <td><span class="code-tag">test_chave_idempotencia_obrigatoria()</span></td>
+            <td><span class="code-tag">test_rejeitar_pedido_duplicado_mesma_chave()</span></td>
+            <td><span class="code-tag">test_unique_constraint_idempotencia_db()</span></td>
+          </tr>
+          <tr>
+            <td><strong>RF05</strong></td>
+            <td>UC05: Fila KDS Cronológica</td>
+            <td><span class="code-tag">test_ordenacao_pedidos_por_criado_em()</span></td>
+            <td><span class="code-tag">test_obter_pedidos_pendentes_use_case()</span></td>
+            <td><span class="code-tag">test_get_pedidos_kds_endpoint()</span></td>
+          </tr>
+          <tr>
+            <td><strong>RF06</strong></td>
+            <td>UC05: Impressão Térmica</td>
+            <td><span class="code-tag">test_formatacao_cupom_chapa_escpos()</span></td>
+            <td><span class="code-tag">test_disparo_evento_impressao_pedido()</span></td>
+            <td><span class="code-tag">test_adapter_impressora_envio_socket()</span></td>
+          </tr>
+          <tr>
+            <td><strong>RF07</strong></td>
+            <td>UC10: Caixa Fechamento Cego</td>
+            <td><span class="code-tag">test_apuracao_diferenca_caixa_cego()</span></td>
+            <td><span class="code-tag">test_fechar_caixa_com_divergencia_use_case()</span></td>
+            <td><span class="code-tag">test_post_fechamento_caixa_endpoint()</span></td>
+          </tr>
+          <tr>
+            <td><strong>RF08</strong></td>
+            <td>UC02 / UC03: Registro Pagamento</td>
+            <td><span class="code-tag">test_pagamento_valor_bate_com_pedido()</span></td>
+            <td><span class="code-tag">test_registrar_pagamento_sucesso_use_case()</span></td>
+            <td><span class="code-tag">test_pagamento_foreign_key_pedido_db()</span></td>
+          </tr>
+          <tr>
+            <td><strong>RF09</strong></td>
+            <td>UC11: Emissão NFC-e</td>
+            <td><span class="code-tag">test_documento_fiscal_status_transicao()</span></td>
+            <td><span class="code-tag">test_agendamento_emissao_nfce_assincrona()</span></td>
+            <td><span class="code-tag">test_tecspeed_adapter_mock_autorizado()</span></td>
+          </tr>
+          <tr>
+            <td><strong>RF10</strong></td>
+            <td>UC12: Relatórios Básicos</td>
+            <td><span class="code-tag">test_calculo_ticket_medio()</span></td>
+            <td><span class="code-tag">test_gerar_relatorio_periodo_use_case()</span></td>
+            <td><span class="code-tag">test_query_itens_mais_vendidos_postgres()</span></td>
+          </tr>
+          <tr>
+            <td><strong>RF11</strong></td>
+            <td>UC07: Controle de Entregas</td>
+            <td><span class="code-tag">test_despacho_transicao_em_rota_entregue()</span></td>
+            <td><span class="code-tag">test_atribuir_motoboy_pedido_use_case()</span></td>
+            <td><span class="code-tag">test_update_status_entrega_postgres()</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <!-- MODAL PARA DIAGRAMAS AMPLIADOS -->
+  <div class="modal-backdrop" id="diagramModal" onclick="closeDiagramModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="modalDiagramTitle" style="font-family:'Outfit'; font-size:18px;">Diagrama</h3>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <a id="modalOpenExternalBtn" href="#" target="_blank" class="btn btn-secondary" style="font-size:12px; padding:6px 12px; text-decoration:none; display:inline-flex; align-items:center; gap:6px; background:rgba(99, 102, 241, 0.25); border:1px solid rgba(99, 102, 241, 0.4); border-radius:6px; color:#c7d2fe;">
+            🔗 Abrir em Nova Aba (Tela Cheia)
+          </a>
+          <button class="btn-secondary" onclick="closeDiagramModal()" style="padding:6px 12px; font-size:12px; cursor:pointer;">✕ Fechar (ESC)</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <iframe id="modalDiagramFrame" style="width:100%; height:100%; border:none; background:#0f172a; border-radius:0;"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // NAVEGAÇÃO DE ABAS
+    // =========================================================================
+    function switchTab(tabId) {
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(tabId)) {
+          btn.classList.add('active');
+        }
+      });
+      document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+
+      const targetPane = document.getElementById('tab-' + tabId);
+      if (targetPane) targetPane.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // =========================================================================
+    // CONTROLE DOS SLIDES
+    // =========================================================================
+    let currentSlide = 1;
+    const totalSlides = 8;
+
+    const speakerNotesMap = {
+      1: "🗣️ SLIDE 1 (Capa): 'Bom dia professor e banca. Hoje apresentamos a Plataforma Unificada de Gestão de Delivery. Nosso diferencial foi não construir um sistema genérico para grandes redes, mas mergulhar na dor real de uma lanchonete familiar com 5 funcionários.'",
+      2: "🗣️ SLIDE 2 (Microuniverso): 'A lanchonete opera com 20 a 60 pedidos por noite. O chapeiro não usa telas por causa da gordura e calor; ele precisa de papel impresso. Além disso, pedidos que chegam pelo WhatsApp chegam fragmentados e geram retrabalho na cozinha.'",
+      3: "🗣️ SLIDE 3 (Over-Engineering): 'Aqui demonstramos maturidade de trade-off: rejeitamos microsserviços, vector clocks e split contábil. Uma lanchonete precisa de um Monolito Modular estável com transações ACID no PostgreSQL.'",
+      4: "🗣️ SLIDE 4 (DDD): 'Modelamos o domínio em 4 Bounded Contexts estritos. Destaco os agregados Pedido e CaixaSessao que encapsulam as invariantes de cálculo de totais e conciliação cega.'",
+      5: "🗣️ SLIDE 5 (UML & Formalismo): 'Seguimos rigorosamente o SKILL.md: diagramas de casos de uso com herança de atores, classes com métodos e visibilidade, DER sem redundâncias e FSM com ciclo limpo.'",
+      6: "🗣️ SLIDE 6 (Regras Críticas): 'Duas regras fundamentais: a Idempotência que impede duplicar pedidos na chapa se o cliente der duplo-clique, e o Fechamento Cego de Caixa, onde o operador declara o dinheiro sem ver o sistema.'",
+      7: "🗣️ SLIDE 7 (Clean Architecture & TDD): 'Organizamos as 4 camadas da Clean Architecture. Cada caso de uso é isolado e testado antes de qualquer linha de framework ou banco.'",
+      8: "🗣️ SLIDE 8 (Transição para Demo): 'A operação física é soberana: o software serve à chapa e ao balcão, garantindo rapidez e zero atrito. Agora, avançamos para o próximo tópico da apresentação: vamos demonstrar a solução funcionando na prática no nosso Simulador Operacional!'"
+    };
+
+    function updateSlide() {
+      document.querySelectorAll('.slide-body').forEach(slide => slide.classList.remove('active'));
+      const activeSlide = document.querySelector(`.slide-body[data-slide="${currentSlide}"]`);
+      if (activeSlide) activeSlide.classList.add('active');
+
+      document.getElementById('slideIndicator').innerText = `SLIDE 0${currentSlide} / 0${totalSlides}`;
+      document.getElementById('slideProgress').style.width = `${(currentSlide / totalSlides) * 100}%`;
+      document.getElementById('notesText').innerText = speakerNotesMap[currentSlide] || "";
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function toggleSpeakerNotes() {
+      const drawer = document.getElementById('speakerNotes');
+      drawer.classList.toggle('open');
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    // ATALHOS DE TECLADO
+    window.addEventListener('keydown', (e) => {
+      if (document.getElementById('tab-slides').classList.contains('active')) {
+        if (e.key === 'ArrowRight' || e.key === ' ') {
+          nextSlide();
+        } else if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
+          prevSlide();
+        } else if (e.key.toLowerCase() === 'n') {
+          toggleSpeakerNotes();
+        }
+      }
+      if (e.key.toLowerCase() === 'f') {
+        toggleFullscreen();
+      }
+    });
+
+    // =========================================================================
+    // LÓGICA DO SIMULADOR OPERACIONAL
+    // =========================================================================
+    let cart = [];
+    let orderCounter = 42;
+    let systemCashTotal = 0;
+
+    function playAudioTone(freq = 440, duration = 0.1) {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.frequency.value = freq;
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function simAddToCart(nome, preco) {
+      cart.push({ nome, preco });
+      playAudioTone(520, 0.08);
+      renderCart();
+    }
+
+    function renderCart() {
+      const subtotal = cart.reduce((acc, item) => acc + item.preco, 0);
+      const taxa = cart.length > 0 ? 6.00 : 0.00;
+      const total = subtotal + taxa;
+
+      document.getElementById('simCartSubtotal').innerText = `R$ ${subtotal.toFixed(2)}`;
+      document.getElementById('simCartTotal').innerText = `R$ ${total.toFixed(2)}`;
+    }
+
+    function simSubmitOrder() {
+      if (cart.length === 0) {
+        alert("Adicione pelo menos 1 item ao carrinho para simular!");
+        return;
+      }
+
+      orderCounter++;
+      const subtotal = cart.reduce((acc, item) => acc + item.preco, 0);
+      const total = subtotal + 6.00;
+      systemCashTotal += total;
+
+      const orderData = {
+        id: orderCounter,
+        itens: [...cart],
+        total: total,
+        hora: new Date().toLocaleTimeString().substring(0, 5)
+      };
+
+      // Tocar som de sucesso
+      playAudioTone(880, 0.15);
+
+      // Injetar na coluna da cozinha
+      addOrderToKds(orderData);
+
+      // Limpar carrinho
+      cart = [];
+      renderCart();
+    }
+
+    function addOrderToKds(order) {
+      const kdsList = document.getElementById('kdsList');
+      if (kdsList.innerText.includes("Aguardando pedidos")) {
+        kdsList.innerHTML = "";
+      }
+
+      const card = document.createElement('div');
+      card.className = "kds-card";
+      card.id = `kds-order-${order.id}`;
+
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-weight:700; font-size:15px; color:#f8fafc;">Pedido #${order.id}</span>
+          <span class="badge badge-warning" id="status-${order.id}">CRIADO (${order.hora})</span>
+        </div>
+        <div style="font-size:13px; color:#cbd5e1; margin-bottom:10px;">
+          ${order.itens.map(i => `• 1x ${i.nome}`).join('<br>')}
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn-secondary" style="padding:4px 8px; font-size:11px;" onclick="simPrintReceipt(${order.id}, '${order.itens.map(i => i.nome).join(', ')}', ${order.total})">🖨️ Imprimir</button>
+          <button class="btn-add" style="padding:4px 8px; font-size:11px; background:#10b981;" onclick="simAdvanceStatus(${order.id})">✓ Marcar Pronto</button>
+        </div>
+      `;
+
+      kdsList.prepend(card);
+      document.getElementById('kdsCountBadge').innerText = `${document.querySelectorAll('.kds-card').length} Pedidos`;
+    }
+
+    function simAdvanceStatus(id) {
+      const card = document.getElementById(`kds-order-${id}`);
+      const badge = document.getElementById(`status-${id}`);
+      if (card && badge) {
+        card.classList.add('pronto');
+        badge.className = "badge badge-success";
+        badge.innerText = "PRONTO (CHAPA)";
+        playAudioTone(660, 0.12);
+      }
+    }
+
+    function simPrintReceipt(id, itens, total) {
+      playAudioTone(300, 0.25);
+      const receipt = document.getElementById('thermalPaper');
+      const content = document.getElementById('thermalContent');
+      content.innerHTML = `
+        DATA: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}<br>
+        PEDIDO: #${id} (WEB PROPRIO)<br>
+        --------------------------------<br>
+        ITENS:<br>
+        ${itens.replace(/, /g, '<br>')}<br>
+        OBS: SEM CEBOLA, MAIONESE EXTRA<br>
+        --------------------------------<br>
+        TOTAL: R$ ${total.toFixed(2)} (PIX PAGO)<br>
+        ENTREGA: RUA DAS FLORES, 123
+      `;
+      receipt.style.display = "block";
+    }
+
+    function simCloseCash() {
+      const declaredCash = parseFloat(document.getElementById('blindCash').value) || 0;
+      const declaredCard = parseFloat(document.getElementById('blindCard').value) || 0;
+      const totalDeclared = declaredCash + declaredCard;
+
+      const resultBox = document.getElementById('cashResult');
+      resultBox.style.display = "block";
+
+      const diff = totalDeclared - systemCashTotal;
+
+      if (Math.abs(diff) < 0.01) {
+        resultBox.style.background = "rgba(16, 185, 129, 0.2)";
+        resultBox.style.border = "1px solid #10b981";
+        resultBox.style.color = "#34d399";
+        resultBox.innerHTML = `
+          <strong>✓ FECHAMENTO REGULAR HOMOLOGADO</strong><br>
+          Total Declarado: R$ ${totalDeclared.toFixed(2)}<br>
+          Total do Sistema: R$ ${systemCashTotal.toFixed(2)}<br>
+          Divergência: R$ 0,00 (Sem quebra de caixa).
+        `;
+        playAudioTone(900, 0.2);
+      } else {
+        resultBox.style.background = "rgba(239, 68, 68, 0.2)";
+        resultBox.style.border = "1px solid #ef4444";
+        resultBox.style.color = "#f87171";
+        resultBox.innerHTML = `
+          <strong>⚠️ DIVERGÊNCIA IDENTIFICADA!</strong><br>
+          Total Declarado: R$ ${totalDeclared.toFixed(2)}<br>
+          Total no Sistema: R$ ${systemCashTotal.toFixed(2)}<br>
+          Diferença: R$ ${diff.toFixed(2)}<br>
+          <em>O sistema exige justificativa obrigatória do atendente para auditoria do gerente.</em>
+        `;
+        playAudioTone(200, 0.3);
+      }
+    }
+
+    // =========================================================================
+    // MODAL DE DIAGRAMAS
+    // =========================================================================
+    function openDiagramModal(title, url) {
+      document.getElementById('modalDiagramTitle').innerText = title;
+      const targetUrl = `Diagrama/${url}`;
+      document.getElementById('modalDiagramFrame').src = targetUrl;
+      const extBtn = document.getElementById('modalOpenExternalBtn');
+      if (extBtn) extBtn.href = targetUrl;
+      document.getElementById('diagramModal').classList.add('active');
+    }
+
+    function closeDiagramModal() {
+      document.getElementById('diagramModal').classList.remove('active');
+      document.getElementById('modalDiagramFrame').src = "";
+    }
+
+    // Fechar modal com tecla ESC
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeDiagramModal();
+      }
+    });
+  </script>
+</body>
+</html>

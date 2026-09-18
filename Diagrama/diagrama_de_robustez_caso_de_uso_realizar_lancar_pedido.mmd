@@ -1,0 +1,17 @@
+flowchart LR
+    Ator((Cliente ou Atendente))
+    B1[TelaPedidoWeb / PDV «boundary»]
+    C1[CriarPedidoUseCase «control»]
+    E1[Pedido «entity»]
+    E2[ItemPedido «entity»]
+    E3[CardapioItem «entity»]
+    R1[PedidoRepository «boundary/port»]
+    P1[ImpressoraTermicaAdapter «boundary»]
+
+    Ator --> B1
+    B1 --> C1
+    C1 --> E3
+    C1 --> E1
+    E1 -.->|compõe| E2
+    C1 --> R1
+    C1 --> P1

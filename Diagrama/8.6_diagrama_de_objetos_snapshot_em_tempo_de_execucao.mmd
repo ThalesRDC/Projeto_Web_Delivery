@@ -1,0 +1,77 @@
+classDiagram
+    class cliente_maria {
+        <<instance>>
+        id = "c-101"
+        nome = "Maria Silva"
+        telefone = "11988887777"
+        endereco = "Rua das Flores, 123 - Apto 42"
+    }
+
+    class pedido_042 {
+        <<instance>>
+        id = "p-042"
+        numeroDiario = 42
+        origemCanal = "WEB"
+        status = "EM_PREPARO"
+        taxaEntrega = 6.00
+        valorTotal = 41.00
+        chaveIdempotencia = "idem-web-042-xyz"
+        criadoEm = "2026-09-18 20:15:00"
+    }
+
+    class item_xtudo {
+        <<instance>>
+        id = "item-01"
+        quantidade = 1
+        precoUnitario = 28.00
+        observacoes = "Sem cebola, maionese extra"
+    }
+
+    class item_coca {
+        <<instance>>
+        id = "item-02"
+        quantidade = 1
+        precoUnitario = 7.00
+        observacoes = "Gelada"
+    }
+
+    class produto_xtudo {
+        <<instance>>
+        id = "prod-55"
+        nome = "X-Tudo Especial"
+        preco = 28.00
+        categoria = "Lanches"
+        disponivel = true
+    }
+
+    class produto_coca {
+        <<instance>>
+        id = "prod-08"
+        nome = "Coca-Cola Lata 350ml"
+        preco = 7.00
+        categoria = "Bebidas"
+        disponivel = true
+    }
+
+    class pagamento_pix {
+        <<instance>>
+        id = "pag-909"
+        metodo = "PIX"
+        valorPago = 41.00
+        statusTransacao = "CONFIRMADO"
+    }
+
+    class sessao_caixa_noite {
+        <<instance>>
+        id = "cx-turno-2"
+        saldoInicial = 150.00
+        aberturaEm = "2026-09-18 18:00:00"
+    }
+
+    cliente_maria --> pedido_042 : realizou
+    pedido_042 *-- item_xtudo : compõe
+    pedido_042 *-- item_coca : compõe
+    item_xtudo --> produto_xtudo : referencia
+    item_coca --> produto_coca : referencia
+    pedido_042 o-- pagamento_pix : liquidado por
+    sessao_caixa_noite o-- pagamento_pix : registrou

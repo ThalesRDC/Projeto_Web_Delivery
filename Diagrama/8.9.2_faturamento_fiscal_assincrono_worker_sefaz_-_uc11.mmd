@@ -1,0 +1,17 @@
+sequenceDiagram
+    autonumber
+    participant DB as PostgreSQL
+    participant Worker as FiscalWorker (Background)
+    participant Sefaz as Provedor NFC-e / SEFAZ
+
+    Worker ->> DB: SELECT pedidos WHERE status_fiscal = 'PENDENTE'
+    DB -->> Worker: Retorna Pedido #42 pago
+    Worker ->> Sefaz: Transmitir lote XML da NFC-e
+    alt SEFAZ Autoriza (Fluxo Normal)
+        Sefaz -->> Worker: Protocolo de Autorização + Chave 44 dígitos
+        Worker ->> DB: UPDATE documentos_fiscais SET status='AUTORIZADA'
+    else SEFAZ Inacessível / Timeout 5s (Resiliência)
+        Sefaz -->> Worker: Timeout ou Erro 503
+        Worker ->> DB: UPDATE documentos_fiscais SET status='PENDENTE_RETRY'
+        Note over Worker: Retentativa agendada em lote. Cozinha e entrega NÃO param!
+    end

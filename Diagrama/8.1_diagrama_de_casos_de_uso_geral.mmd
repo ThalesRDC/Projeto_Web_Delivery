@@ -1,0 +1,46 @@
+flowchart LR
+    Cliente((Cliente Final))
+    Atendente((Atendente PDV))
+    Cozinheiro((Cozinheiro))
+    Entregador((Entregador Motoboy))
+    Admin((Administrador / Gestor))
+    Sefaz((SEFAZ Fiscal))
+
+    Admin -.->|herda de| Atendente
+
+    subgraph Ingestao["Contexto de Ingestão & Pedidos"]
+        UC01[UC01: Consultar Cardápio Digital]
+        UC02[UC02: Realizar Pedido Web]
+        UC03[UC03: Registrar Pedido PDV/WhatsApp]
+        UC04[UC04: Aplicar Desconto / Cortesia]
+    end
+
+    subgraph Fulfillment["Contexto de Cozinha & KDS"]
+        UC05[UC05: Visualizar Fila e Imprimir Pedido]
+        UC06[UC06: Avançar Preparo / Marcar Pronto]
+    end
+
+    subgraph Logistica["Contexto de Logística & Entrega"]
+        UC07[UC07: Atribuir e Concluir Entrega]
+    end
+
+    subgraph FinanceiroFiscal["Contexto Backoffice & Fiscal"]
+        UC10[UC10: Efetuar Fechamento Cego de Caixa]
+        UC11[UC11: Emitir NFC-e Eletrônica]
+        UC12[UC12: Consultar Relatórios Básicos e Itens]
+    end
+
+    Cliente --> UC01
+    Cliente --> UC02
+    Atendente --> UC03
+    UC04 -.->|extend| UC02
+    UC04 -.->|extend| UC03
+    Cozinheiro --> UC05
+    Cozinheiro --> UC06
+    Atendente --> UC07
+    Entregador --> UC07
+    Atendente --> UC10
+    Admin --> UC12
+    UC02 -.->|include| UC11
+    UC03 -.->|include| UC11
+    UC11 --> Sefaz

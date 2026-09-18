@@ -387,7 +387,7 @@ class RenderizadorMermaid:
         return caminho
 
     def salvar_html(self, diag: Diagrama) -> Path:
-        """Gera uma página HTML interativa individual com renderização Mermaid."""
+        """Gera uma página HTML interativa individual com renderização Mermaid e controles de Zoom/Pan."""
         caminho = self.output_dir / f"{diag.slug}.html"
         html_conteudo = f"""<!DOCTYPE html>
 <html lang="pt-BR">
@@ -395,100 +395,335 @@ class RenderizadorMermaid:
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{diag.titulo} - PUGD</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     * {{ box-sizing: border-box; }}
     body {{
       margin: 0;
-      padding: 24px;
-      background: #f8fafc;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      color: #1e293b;
+      padding: 20px 24px;
+      background: #0f172a;
+      font-family: 'Inter', sans-serif;
+      color: #f1f5f9;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
     }}
     .header {{
-      text-align: center;
-      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      flex-shrink: 0;
     }}
     h1 {{
-      margin: 0 0 8px 0;
-      color: #0f172a;
-      font-size: 22px;
+      margin: 0;
+      color: #f8fafc;
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
       font-weight: 700;
-    }}
-    .meta {{
-      color: #64748b;
-      font-size: 13px;
-    }}
-    .actions {{
-      margin-top: 14px;
       display: flex;
-      justify-content: center;
+      align-items: center;
       gap: 10px;
     }}
+    .meta {{
+      color: #94a3b8;
+      font-size: 12px;
+      margin-top: 3px;
+    }}
+    .actions {{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }}
     .btn {{
-      display: inline-block;
-      padding: 7px 14px;
-      background: #2563eb;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: #3b82f6;
       color: white;
       text-decoration: none;
       border-radius: 6px;
-      font-size: 13px;
-      font-weight: 500;
-      transition: background 0.2s;
-    }}
-    .btn:hover {{ background: #1d4ed8; }}
-    .btn-secondary {{ background: #64748b; }}
-    .btn-secondary:hover {{ background: #475569; }}
-    .diagram-container {{
-      background: white;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 30px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 400px;
-      overflow: auto;
-    }}
-    .footer {{
-      text-align: center;
-      margin-top: 24px;
-      color: #94a3b8;
       font-size: 12px;
+      font-weight: 500;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }}
+    .btn:hover {{ background: #2563eb; transform: translateY(-1px); }}
+    .btn-secondary {{ background: rgba(255, 255, 255, 0.08); color: #cbd5e1; }}
+    .btn-secondary:hover {{ background: rgba(255, 255, 255, 0.15); color: #fff; }}
+    
+    /* TOOLBAR DE ZOOM & PAN */
+    .zoom-toolbar {{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+    }}
+    .zoom-btn {{
+      background: rgba(255, 255, 255, 0.08);
+      color: #f1f5f9;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }}
+    .zoom-btn:hover {{
+      background: rgba(99, 102, 241, 0.4);
+      color: #fff;
+    }}
+    .zoom-badge {{
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #38bdf8;
+      font-weight: 600;
+      min-width: 52px;
+      text-align: center;
+    }}
+    .zoom-hint {{
+      font-size: 11px;
+      color: #94a3b8;
+      margin-left: 8px;
+      border-left: 1px solid rgba(255, 255, 255, 0.15);
+      padding-left: 10px;
+    }}
+
+    /* VIEWPORT E CANVAS */
+    .viewport {{
+      flex: 1;
+      position: relative;
+      background: #ffffff;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      cursor: grab;
+      user-select: none;
+    }}
+    .viewport:active {{
+      cursor: grabbing;
+    }}
+    .canvas-wrapper {{
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-origin: 0 0;
+      will-change: transform;
+      padding: 40px;
+      display: inline-block;
+    }}
+    
+    /* Previne encolhimento de textos no SVG do Mermaid */
+    .canvas-wrapper svg {{
+      max-width: none !important;
+      height: auto !important;
+    }}
+
+    .footer {{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      color: #64748b;
+      font-size: 11px;
+      flex-shrink: 0;
     }}
   </style>
 </head>
 <body>
   <div class="header">
-    <h1>{diag.titulo}</h1>
-    <div class="meta">Origem: <code>arquivos.md/diagramas/{diag.arquivo_origem}</code></div>
+    <div>
+      <h1>📊 {diag.titulo}</h1>
+      <div class="meta">Origem: <code>{diag.arquivo_origem}</code> • ID: <code>{diag.slug}</code></div>
+    </div>
     <div class="actions">
-      <a class="btn" href="{diag.slug}.png" download>Baixar PNG</a>
-      <a class="btn btn-secondary" href="{diag.slug}.svg" download>Baixar SVG</a>
-      <a class="btn btn-secondary" href="{diag.slug}.mmd" download>Código Mermaid (.mmd)</a>
-      <a class="btn btn-secondary" href="index.html">← Voltar à Galeria</a>
+      <a class="btn" href="{diag.slug}.png" download>💾 Baixar PNG</a>
+      <a class="btn btn-secondary" href="{diag.slug}.svg" download>📐 Baixar SVG</a>
+      <a class="btn btn-secondary" href="{diag.slug}.mmd" download>📄 .MMD</a>
+      <a class="btn btn-secondary" href="index.html">← Galeria</a>
     </div>
   </div>
 
-  <div class="diagram-container">
-    <pre class="mermaid">
+  <div class="viewport" id="viewport">
+    <div class="canvas-wrapper" id="canvasWrapper">
+      <pre class="mermaid" id="mermaidCode">
 {diag.codigo_mermaid}
-    </pre>
+      </pre>
+    </div>
+
+    <!-- TOOLBAR FLUTUANTE DE ZOOM & PAN -->
+    <div class="zoom-toolbar">
+      <button class="zoom-btn" onclick="zoomOut()" title="Diminuir Zoom (-)">🔍 -</button>
+      <span class="zoom-badge" id="zoomLevel">100%</span>
+      <button class="zoom-btn" onclick="zoomIn()" title="Aumentar Zoom (+)">🔍 +</button>
+      <button class="zoom-btn" onclick="resetZoom()" title="Resetar Visualização (100%)">↺ Reset</button>
+      <button class="zoom-btn" onclick="fitToScreen()" title="Ajustar à Tela">⛶ Ajustar</button>
+      <span class="zoom-hint">🖱️ Arraste para mover • Scroll para zoom • Duplo clique para resetar</span>
+    </div>
   </div>
 
   <div class="footer">
-    Plataforma Unificada de Gestão de Delivery (PUGD) • Renderizado via Mermaid.js
+    <span>Plataforma Unificada de Gestão de Delivery (PUGD) • Engenharia de Software</span>
+    <span>Renderizado via Mermaid.js 10 • Controles Nativos de Pan & Zoom</span>
   </div>
 
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
     mermaid.initialize({{
-      startOnLoad: true,
+      startOnLoad: false,
       theme: '{self.tema}',
-      flowchart: {{ useMaxWidth: true, htmlLabels: true }},
-      er: {{ useMaxWidth: true }},
-      sequence: {{ useMaxWidth: true }}
+      flowchart: {{ useMaxWidth: false, htmlLabels: true }},
+      er: {{ useMaxWidth: false }},
+      sequence: {{ useMaxWidth: false, showSequenceNumbers: true }},
+      state: {{ useMaxWidth: false }}
     }});
+
+    // Renderizar após DOM pronto
+    document.addEventListener("DOMContentLoaded", async () => {{
+      await mermaid.run();
+      setTimeout(initPanZoom, 200);
+    }});
+
+    // =========================================================================
+    // CONTROLES DE PAN & ZOOM
+    // =========================================================================
+    let scale = 1;
+    let panX = 0;
+    let panY = 0;
+    let isDragging = false;
+    let startX = 0;
+    let startY = 0;
+
+    const viewport = document.getElementById('viewport');
+    const canvasWrapper = document.getElementById('canvasWrapper');
+    const zoomLevelBadge = document.getElementById('zoomLevel');
+
+    function updateTransform() {{
+      canvasWrapper.style.transform = `translate(${{panX}}px, ${{panY}}px) scale(${{scale}})`;
+      zoomLevelBadge.innerText = Math.round(scale * 100) + '%';
+    }}
+
+    window.zoomIn = function() {{
+      zoomCenter(1.25);
+    }};
+
+    window.zoomOut = function() {{
+      zoomCenter(0.8);
+    }};
+
+    window.resetZoom = function() {{
+      scale = 1;
+      centerDiagram();
+    }};
+
+    window.fitToScreen = function() {{
+      const svg = canvasWrapper.querySelector('svg');
+      if (!svg) return;
+      const svgRect = svg.getBoundingClientRect();
+      const vpRect = viewport.getBoundingClientRect();
+
+      const scaleX = (vpRect.width - 60) / (svgRect.width / scale);
+      const scaleY = (vpRect.height - 60) / (svgRect.height / scale);
+      scale = Math.min(scaleX, scaleY, 1.5);
+      centerDiagram();
+    }};
+
+    function zoomCenter(factor) {{
+      const vpRect = viewport.getBoundingClientRect();
+      const centerX = vpRect.width / 2;
+      const centerY = vpRect.height / 2;
+      zoomAt(centerX, centerY, factor);
+    }}
+
+    function zoomAt(clientX, clientY, factor) {{
+      const newScale = Math.min(Math.max(0.15, scale * factor), 5.0);
+      panX = clientX - (clientX - panX) * (newScale / scale);
+      panY = clientY - (clientY - panY) * (newScale / scale);
+      scale = newScale;
+      updateTransform();
+    }}
+
+    function centerDiagram() {{
+      const svg = canvasWrapper.querySelector('svg');
+      if (!svg) return;
+      const vpRect = viewport.getBoundingClientRect();
+      const svgWidth = (svg.clientWidth || svg.getBoundingClientRect().width / scale);
+      const svgHeight = (svg.clientHeight || svg.getBoundingClientRect().height / scale);
+
+      panX = Math.max(20, (vpRect.width - svgWidth * scale) / 2);
+      panY = Math.max(20, (vpRect.height - svgHeight * scale) / 2);
+      updateTransform();
+    }}
+
+    function initPanZoom() {{
+      centerDiagram();
+
+      // Roda do mouse (Zoom)
+      viewport.addEventListener('wheel', (e) => {{
+        e.preventDefault();
+        const rect = viewport.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        const factor = e.deltaY < 0 ? 1.15 : 0.87;
+        zoomAt(mouseX, mouseY, factor);
+      }}, {{ passive: false }});
+
+      // Arrastar com botão esquerdo (Pan)
+      viewport.addEventListener('mousedown', (e) => {{
+        if (e.button !== 0) return;
+        isDragging = true;
+        startX = e.clientX - panX;
+        startY = e.clientY - panY;
+        viewport.style.cursor = 'grabbing';
+      }});
+
+      window.addEventListener('mousemove', (e) => {{
+        if (!isDragging) return;
+        panX = e.clientX - startX;
+        panY = e.clientY - startY;
+        updateTransform();
+      }});
+
+      window.addEventListener('mouseup', () => {{
+        if (isDragging) {{
+          isDragging = false;
+          viewport.style.cursor = 'grab';
+        }}
+      }});
+
+      viewport.addEventListener('dblclick', () => {{
+        resetZoom();
+      }});
+
+      // Atalhos de teclado
+      window.addEventListener('keydown', (e) => {{
+        if (e.key === '+' || e.key === '=') zoomIn();
+        if (e.key === '-' || e.key === '_') zoomOut();
+        if (e.key === '0') resetZoom();
+      }});
+    }}
   </script>
 </body>
 </html>"""
@@ -508,6 +743,7 @@ def gerar_galeria_html(output_dir: Path, itens: List[Dict]) -> Path:
     for item in itens:
         slug = item["slug"]
         titulo = item["titulo"]
+        titulo_escapado = titulo.replace('"', '&quot;')
         origem = item["origem"]
         tem_png = item["png"] is not None
         tem_svg = item["svg"] is not None
@@ -515,7 +751,7 @@ def gerar_galeria_html(output_dir: Path, itens: List[Dict]) -> Path:
         preview_img = f"{slug}.png" if tem_png else (f"{slug}.svg" if tem_svg else "")
 
         img_tag = (
-            f'<img src="{preview_img}" alt="{titulo}" loading="lazy" />'
+            f'<img src="{preview_img}" alt="{titulo_escapado}" loading="lazy" />'
             if preview_img
             else '<div class="no-preview">Sem imagem disponível</div>'
         )
@@ -536,7 +772,7 @@ def gerar_galeria_html(output_dir: Path, itens: List[Dict]) -> Path:
         </a>
       </div>
       <div class="card-body">
-        <h3 class="card-title" title="{titulo}">{titulo}</h3>
+        <h3 class="card-title" title="{titulo_escapado}">{titulo}</h3>
         <div class="card-origin">Fonte: <code>{origem}</code></div>
         <div class="card-links">
           {' '.join(botoes)}

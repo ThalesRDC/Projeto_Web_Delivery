@@ -1,126 +1,195 @@
-# 🍕 Plataforma Unificada de Gestão de Delivery (PUGD)
+# 🍔 Plataforma Unificada de Gestão de Delivery (PUGD)
 
-> Sistema integrado de alta performance e resiliência operacional para delivery de alimentação: do autoatendimento ao KDS offline-first, despacho dinâmico e compliance fiscal.
-
----
-
-## 📌 Status do Projeto & Realidade Atual
-
-O projeto encontra-se atualmente na fase de **Especificação Técnica Completa, Modelagem de Domínio (DDD) e Definição Arquitetural** (conclusão da Fase 0 / Preparação para o Marco 1 de Implementação).
-
-Todo o levantamento de requisitos de negócio, matriz de riscos operacionais, arquitetura de software, diagramas UML/Mermaid e especificações de contingência foram exaustivamente detalhados e estruturados no repositório.
-
-* **Fase Atual**: Preparação para o **Marco 1: Core de Domínio e MVP Operacional**.
-* **Paradigma Arquitetural**: Monolito Modular baseado em **Clean Architecture**, **Domain-Driven Design (DDD)** e esteira orientada a **TDD**.
+> Sistema de gestão operacional e engenharia de software para delivery de lanchonete familiar: da captura unificada de pedidos à impressão térmica na chapa, fechamento cego de caixa e emissão fiscal desacoplada.
 
 ---
 
-## 🎯 Proposta de Valor e Problema Operacional
+## 📌 Resumo Executivo & Contexto Real
 
-A operação tradicional de restaurantes e dark kitchens enfrenta quatro gargalos crônicos:
-1. **Proliferação de Tablets e Telas**: Aluguel de equipamentos de marketplaces consumindo de R$ 300 a R$ 600/mês.
-2. **Dupla Digitação e Erro Humano**: Atendentes transcrevendo pedidos manuais, gerando taxas de cancelamento/erro entre 3% e 7%.
-3. **Cegueira Operacional**: Falta de visibilidade em tempo real do tempo de preparo na cozinha e sobrecarga nos horários de pico.
-4. **Vulnerabilidade Fiscal e de Caixa**: Fechamentos de caixa demorados e falhas na emissão de NFC-e quando a SEFAZ oscila.
+Diferente de sistemas genéricos corporativos ou soluções superdimensionadas para grandes redes de franquias, a **PUGD** foi desenhada estritamente para a realidade operacional de uma **lanchonete familiar de hambúrgueres artesanais / dark kitchen**:
 
-### Os 4 Pilares da Solução:
-* **🚀 Ingestão Unificada (Order Gateway)**: Cardápio digital web próprio (autoatendimento), lançador ultrarrápido para balcão/telefone (<10s com atalhos de teclado) e ingestão centralizada de marketplaces com controle estrito de idempotência.
-* **🍳 Fulfillment Resiliente (KDS Offline-First)**: Tela de cozinha de baixa latência via **Server-Sent Events (SSE)**, com persistência local via IndexedDB para continuar operando mesmo em blackouts de internet.
-* **🛵 Logística & Despacho**: Gestão dinâmica de frota de entregadores com validação segura de entrega por código único.
-* **💼 Backoffice & Compliance Fiscal**: Fechamento cego de caixa por operador, livro razão em partidas dobradas e emissão assíncrona de NFC-e com contingência offline automática.
-* **🤖 IA Pragmática**: Lançador assistido para extração estruturada de pedidos informais de WhatsApp via LLM com *guardrails* e confirmação humana.
+* **Equipe Operacional Enxuta**: 5 colaboradores (1 chapeiro/cozinha, 1 montador/embalagem, 1 atendente/caixa e 2 motoboys próprios).
+* **Volume Diário**: 20 a 60 pedidos por noite (pico concentrado entre 19h30 e 22h00 às sextas e domingos).
+* **Cultura Física Soberana**: O chapeiro trabalha em ambiente com calor, fumaça e gordura. Telas touch na chapa falham; o comando da cozinha é sustentado por **comprovantes térmicos físicos (ESC/POS)** grampeados diretamente na sacola do pedido.
+* **Paradigma de Software**: **Monolito Modular** baseado em **Clean Architecture**, **Domain-Driven Design (DDD)** e esteira orientada a **TDD**, eliminando overhead de rede, microsserviços e complexidade desnecessária.
 
 ---
 
-## 🏛️ Arquitetura e Stack Tecnológica
+## 🎯 Dores do Negócio e Pilares da Solução
 
-A arquitetura foi planejada para evoluir pragmaticamente em três estágios:
+### O Problema Operacional Real
+1. **Dependência e Perda de Margem em Plataformas Terceiras**: Mensalidades, comissões agressivas, relatórios superficiais e cardápio engessado para complementos.
+2. **Ambiguidade e Erro em Pedidos por WhatsApp**: Mensagens informais picadas (*"2 x-tudo, 1 sem tomate"* em duas mensagens gera lanche errado e refação).
+3. **Lançamento Manual e Retrabalho**: O atendente copia mensagens do WhatsApp ou telefone para comandas de papel ou sistemas lentos, atrasando a chapa.
+4. **Fechamento de Caixa sem Rigor**: Vendas fragmentadas em duas maquinetas físicas, dinheiro e Pix, sem conferência cega, gerando quebras de caixa não rastreadas.
+5. **Vulnerabilidade Fiscal**: Sistemas que travam a expedição quando o webservice da SEFAZ oscila.
 
-```
-  [ Fase 1: MVP ]                      [ Fase 2: Escala ]                    [ Fase 3: Alta Escala ]
-┌─────────────────────────┐          ┌─────────────────────────┐          ┌─────────────────────────┐
-│     MONOLITO MODULAR    │          │     MICROSSERVIÇOS      │          │       CELL-BASED        │
-│   (Clean Architecture)  │   ───▶   │  (Orientado a Eventos)  │   ───▶   │     (ALTA ROBUSTEZ)     │
-│ - Transações ACID       │          │ - Bounded Contexts      │          │ - Clusters por Região   │
-│ - Banco Único (Schemas) │          │ - Kafka / RabbitMQ      │          │ - Isolamento de Falhas  │
-│ - Simplicidade de Deploy│          │ - Outbox Pattern & Sagas│          │ - Bulkhead Pattern      │
-└─────────────────────────┘          └─────────────────────────┘          └─────────────────────────┘
-```
+### Os 4 Pilares da Solução (MVP Realista)
+* **🚀 1. Ingestão Unificada de Pedidos**: Cardápio digital web próprio (canal direto para o cliente via smartphone) integrado a um lançador rápido de balcão para pedidos de WhatsApp e balcão em fluxo único.
+* **🍳 2. Operação de Cozinha & Chapa**: Fila unificada de pedidos e **impressão térmica automática (ESC/POS)** na chapa assim que o pedido é confirmado (<1s), com terminal visual simplificado de status.
+* **💰 3. Fechamento Cego de Caixa**: O operador conta fisicamente gaveta e maquinetas e digita os valores sem viés de confirmação (sem ver os totais do sistema). Divergências exigem justificativa formal obrigatória.
+* **⚡ 4. Faturamento Fiscal Assíncrono**: Emissão de NFC-e desacoplada em background worker. A cozinha prepara, o motoboy entrega e a SEFAZ processa sem travar a operação.
 
-### Tecnologias Oficiais
+---
 
-| Componente | Tecnologia | Papel no Sistema |
+## 🚫 Fora de Escopo (Combate ao Over-Engineering)
+
+Saber o que **NÃO** construir é a principal evidência de maturidade em engenharia de software. Foram conscientemente descartados do MVP:
+
+| Recurso Descartado | Por que foi descartado? (Trade-off de Engenharia) | Solução Adotada no MVP |
 | :--- | :--- | :--- |
-| **Domain Core** | **Python 3.12+** | Regras de negócio puras, entidades e agregados (zero dependência de frameworks) |
-| **API & Delivery** | **FastAPI** | APIs REST assíncronas, OpenAPI automático e streaming SSE |
-| **Frontend Web / KDS** | **Next.js 14+ / React / TS** | Interface do Cardápio, KDS offline-first e Lançador Rápido |
-| **Estilização & UI** | **Tailwind CSS + shadcn/ui** | Design system acessível, de alto contraste e ergonômico para cozinha |
-| **Banco Relacional** | **PostgreSQL 16+** | Schemas isolados por bounded context e transações ACID |
-| **Cache & Idempotência** | **Redis 7+** | Travas distribuídas (`X-Idempotency-Key`), rate limiting e filas voláteis |
-| **IA & Parsers** | **LLMs Leves (Gemini / OpenRouter)** | Extração semântica de pedidos de WhatsApp com limiar de confiança (>95%) |
-| **Testes & Qualidade** | **Pytest + Testcontainers** | TDD estrito com pirâmide de testes e linters de arquitetura |
+| **Microsserviços / Cell-Based** | Complexidade operacional, custo de deploy e latência distribuída desnecessária para 60 ped/dia. | **Monolito Modular** com módulos coesos e transações ACID no PostgreSQL. |
+| **KDS Offline / Vector Clocks** | A lanchonete possui internet fixa estável; relógios lógicos são preciosismo acadêmico. | Fila síncrona com idempotência no banco de dados e cupom térmico impresso. |
+| **Split de Pagamento Duplo** | Motoboys são da equipe própria e pagos por diária fixa + taxa por entrega simples. | Registro de taxa de entrega e diária no fechamento de turno do caixa. |
+| **IA / LLM no Pedido do MVP** | Risco de alucinação de ingredientes e custo desproporcional para a operação atual. | Cardápio web estruturado + lançador manual assistido com atalhos de teclado. |
+| **Cluster Redis Dedicado** | Um banco relacional bem indexado resolve idempotência e trava de transação com simplicidade. | Constraint única `chave_idempotencia` no PostgreSQL com rollback automático. |
 
 ---
 
-## 📂 Índice da Documentação do Projeto
+## 🏛️ Arquitetura de Software & Clean Architecture
 
-Todo o projeto possui documentação aprofundada organizada no diretório [`arquivos.md/`](./arquivos.md/):
-
-| Documento | Descrição |
-| :--- | :--- |
-| 📖 **[Proposta Final Consolidada](./arquivos.md/proposta_final.md)** | **Documento mestre completo** unificando todas as seções e decisões do software |
-| 📋 **[1. Introdução e Visão Geral](./arquivos.md/introducao_e_visao_geral.md)** | Dores de mercado, proposta de valor e métricas de ROI |
-| 📝 **[2. Engenharia de Requisitos](./arquivos.md/requisitos.md)** | Requisitos Funcionais (RF01 a RF15) e Não Funcionais (RNF01 a RNF10) |
-| 📊 **[3. Diagramas Técnicos](./arquivos.md/diagramas_tecnicos.md)** | Casos de Uso, Diagrama de Classes, DER, FSM de Estados e Sequência |
-| 🏗️ **[4. Arquitetura de Software](./arquivos.md/arquitetura_software.md)** | Comparativo Monolito vs Microsserviços vs Cell-Based e especificações técnicas |
-| ⚙️ **[5. Decisões Críticas de Engenharia](./arquivos.md/decisoes_criticas.md)** | Idempotência, SSE vs Polling, relógios lógicos na FSM e observabilidade |
-| 🛡️ **[6. Resolução de Lacunas Operacionais](./arquivos.md/resolucao_lacunas.md)** | KDS Offline (IndexedDB), Fechamento Cego, Contingência NFC-e e Despacho |
-| 💡 **[7. Inovação e IA Pragmática](./arquivos.md/inovacao_ia.md)** | Parser inteligente de pedidos de WhatsApp e Co-pilot de catálogo |
-| 🧪 **[9. Implementação, Clean Arch & TDD](./arquivos.md/implementacao_ddd_clean_arch_tdd.md)** | Árvore de diretórios Clean Architecture e metodologia de testes |
-| 🗺️ **[10. Roadmap de Execução & Riscos](./arquivos.md/roadmap_execucao_riscos.md)** | Fases de entrega, marcos técnicos e matriz de mitigação de riscos |
-
----
-
-## 🧭 Estrutura de Pastas do Código (Padrão Clean Architecture)
-
-Quando o desenvolvimento do código-fonte iniciar, a estrutura de diretórios seguirá:
+O sistema adota o padrão **Clean Architecture** dentro de um Monolito Modular em Python/FastAPI e Next.js, isolando as regras de negócio de frameworks e drivers externos:
 
 ```
 src/
-├── domain/                  # Camada 1: Entidades puras, Value Objects e Ports (Zero libs externas)
-│   ├── entities/            # Order, OrderItem, CashRegister, Customer
-│   ├── value_objects/       # Money, CpfCnpj, Address
-│   ├── ports/               # OrderRepositoryPort, FiscalPort, PaymentPort
-│   └── exceptions/          # DomainExceptions (ex: InvalidStateTransitionError)
+├── domain/                      # Camada 1: Núcleo Puro de Negócio (Zero dependências externas)
+│   ├── entities/                # Pedido, ItemPedido, CardapioItem, CaixaSessao, Cliente
+│   ├── value_objects/           # Dinheiro, EnderecoEntrega, StatusPedido (FSM)
+│   └── ports/                   # Interfaces abstratas: PedidoRepository, ImpressoraPort, FiscalPort
 │
-├── application/             # Camada 2: Casos de Uso e Orquestração
-│   ├── use_cases/           # CreateOrderUseCase, AdvanceKdsUseCase, ProcessFiscalDocUseCase
-│   └── dtos/                # Data Transfer Objects de entrada e saída
+├── application/                 # Camada 2: Casos de Uso e Orquestração
+│   ├── use_cases/               # CriarPedidoWeb, RegistrarPedidoPdv, FecharCaixaCego, EmitirNfce
+│   └── dtos/                    # Contratos de entrada e saída (Schemas puros)
 │
-├── adapters/                # Camada 3: Interface Adapters
-│   ├── controllers/         # Endpoints FastAPI, Handlers SSE
-│   ├── repositories/        # Implementações PostgreSQL com SQLAlchemy / SQL nativo
-│   └── gateways/            # Provedores fiscais, adquirentes e serviços externos
+├── adapters/                    # Camada 3: Adaptadores de Interface
+│   ├── controllers/             # Endpoints HTTP REST (FastAPI)
+│   ├── repositories/            # Implementações PostgreSQL com SQLAlchemy
+│   ├── thermal_printer/         # Adaptador ESC/POS para impressora de bobina
+│   └── fiscal/                  # Adaptador HTTP do provedor fiscal da NFC-e
 │
-└── infra/                   # Camada 4: Frameworks, Drivers e Configuração
-    ├── config/              # Variáveis de ambiente e Settings
-    ├── database/            # Conexões e migrações Alembic
-    └── workers/             # Processamento assíncrono em segundo plano
+└── infra/                       # Camada 4: Frameworks, Drivers e Configurações
+    ├── database/                # Conexões assíncronas de banco e migrações Alembic
+    ├── workers/                 # Worker assíncrono para emissão da NFC-e
+    └── web/                     # Servidor ASGI Uvicorn e middlewares de segurança
 ```
 
 ---
 
-## 🛣️ Próximos Passos (Marco 1)
+## 📊 Hub de Engenharia & Modelagem Visual (100% SKILL.md)
 
-O próximo ciclo de trabalho foca no início do desenvolvimento do MVP:
+Toda a modelagem técnica do sistema está documentada em conformidade estrita com o checklist do [SKILL.md](file:///c:/Users/Thales/Documents/WEB/Projeto_Web_Delivery/SKILL.md), disponível tanto na pasta [Diagrama/](file:///c:/Users/Thales/Documents/WEB/Projeto_Web_Delivery/Diagrama) quanto integrados com zoom e pan:
 
-1. **Configuração do Repositório e Tooling**:
-   - Ambiente virtual Python 3.12+, Poetry/uv, linter (`ruff`), formatador e `pytest`.
-   - Setup do `docker-compose.yml` para serviços locais (PostgreSQL 16 e Redis 7).
-2. **Núcleo de Domínio**:
-   - Modelagem de entidades `Order`, `OrderItem`, `Payment` e Máquina de Estados Finita (FSM).
-   - Suíte de testes unitários isolados para transições de estado de pedidos e regras de cálculo.
-3. **Order Gateway & Idempotência**:
-   - Endpoints de submissão de pedidos com FastAPI e validação de chaves idempotentes no Redis.
-4. **KDS Core**:
-   - Canal de streaming SSE e protótipo de tela de cozinha receptora.
+| Seção | Diagrama / Artefato | Tipo | Destaque Técnico |
+| :---: | :--- | :---: | :--- |
+| **8.1** | [Casos de Uso Geral](file:///c:/Users/Thales/Documents/WEB/Projeto_Web_Delivery/Diagrama/8.1_diagrama_de_casos_de_uso_geral.html) | Comportamental | Herança de ator (`Admin -.-> Atendente`), `<<include>>` (NFC-e) e `<<extend>>` (Descontos). |
+| **8.2** | [Descrições Textuais dos Casos de Uso](file:///c:/Users/Thales/Documents/WEB/Projeto_Web_Delivery/Arquivos/proposta_final.md#82-descrições-textuais-dos-casos-de-uso-principais) | Especificação | Pré-condições, fluxos principais e alternativos detalhados (UC01 a UC12). |
+| **8.3** | [Diagrama de Classes](file:///c:/Users/Thales/Documents/WEB/Projeto_Web_Delivery/Diagrama/8.3_diagrama_de_classes.html) | Estrutural | Composição (`Pedido *-- ItemPedido`), agregação (`Pedido o-- Pagamento`), visibilidade (`+`, `-`) e métodos. |
+| **8.4** | [Tabela de Persistência](file:///c:/Users/Thales/Documents/WEB/Projeto_Web_Delivery/Arquivos/proposta_final.md#84-tabela-de-marcação-de-persistência-das-entidades) | Mapeamento | Estratégia de banco relacional: PKs UUIDs, tabelas e Value Objects embutidos. |
+| **8.5** | [DER Lógico Relacional](file:///c:/Users/Thales/Documents/WEB/Projeto_Web_Delivery/Diagrama/8.5_diagrama_entidade-relacionamento_der_logico.html) | Banco de Dados | Cardinalidades relacionais, chaves estrangeiras e índice único de idempotência. |
+| **8.6** | [Diagrama de Objetos](file:///c:/Users/Thales/Documents/WEB/Projeto_Web_Delivery/Diagrama/8.6_diagrama_de_objetos_snapshot_em_tempo_de_execucao.html) | Snapshot Real | Instância viva em tempo de execução: Pedido #42 (X-Tudo, Coca-Cola e Pix). |
+| **8.7** | [Diagrama de Estados (FSM)](file:///c:/Users/Thales/Documents/WEB/Projeto_Web_Delivery/Diagrama/8.7_diagrama_de_estados_do_pedido_ciclo_de_vida_simplificado.html) | Ciclo de Vida | Transições finitas: `Criado → EmPreparo → Pronto → Entregue / Cancelado`. |
+| **8.8** | [Classes BCE / Robustez](file:///c:/Users/Thales/Documents/WEB/Projeto_Web_Delivery/Diagrama/diagrama_de_robustez_caso_de_uso_realizar_lancar_pedido.html) | Arquitetura | Fronteira (Boundary), Controle (Control) e Entidades (Entity) do caso de uso de pedido. |
+| **8.9.1** | [Sequência: Ingestão & Chapa](file:///c:/Users/Thales/Documents/WEB/Projeto_Web_Delivery/Diagrama/8.9.1_ingestao_e_producao_na_chapa_fluxo_critico_da_cozinha_-_uc02uc03_uc05.html) | Interação | Caminho crítico síncrono: Idempotência, gravação ACID e disparo ESC/POS imediato. |
+| **8.9.2** | [Sequência: Faturamento Fiscal](file:///c:/Users/Thales/Documents/WEB/Projeto_Web_Delivery/Diagrama/8.9.2_faturamento_fiscal_assincrono_worker_sefaz_-_uc11.html) | Interação | Resiliência assíncrona: Worker de NFC-e com política de retry sem travar a chapa. |
+| **8.10** | [Atividades do Caixa](file:///c:/Users/Thales/Documents/WEB/Projeto_Web_Delivery/Diagrama/8.10_diagrama_de_atividades_fluxo_de_caixa_e_fechamento_cego.html) | Processo | Fluxo de fechamento cego de caixa, apuração de diferenças e justificativa de quebra. |
+| **8.11** | [Componentes Clean Arch](file:///c:/Users/Thales/Documents/WEB/Projeto_Web_Delivery/Diagrama/8.11_diagrama_de_componentes_clean_architecture_no_monolito_modular.html) | Arquitetura | 4 camadas do Monolito Modular e direção estrita de dependências para o centro. |
+
+> 💡 **Recursos Interativos dos Diagramas:** Todas as páginas HTML possuem **zoom via scroll do mouse**, **arrastar para navegar (pan)**, botões de reset, ajuste automático e atalhos de teclado.
+
+---
+
+## 🖥️ Aplicação de Apresentação Técnica & Simulador Operacional
+
+O projeto conta com uma ferramenta interativa 3 em 1 criada no arquivo [apresentacao.html](file:///c:/Users/Thales/Documents/WEB/Projeto_Web_Delivery/apresentacao.html):
+
+1. **Aba 1: Apresentação de Slides Executiva**:
+   - 8 slides profissionais com tipografia moderna, design dark glassmorphism e controle por teclado (`←`, `→`, barra de espaço).
+   - Gaveta retrátil com roteiro de fala para o apresentador (tecla `N`).
+2. **Aba 2: Simulador Operacional da Lanchonete (Live Demo)**:
+   - **Coluna 1 (Cardápio Web do Cliente)**: Adição de lanches e fechamento de pedido com áudio sintetizado.
+   - **Coluna 2 (Cozinha & Chapa KDS)**: Fila de pedidos e geração do **Cupom de Produção Térmico** simulado para grampear na sacola.
+   - **Coluna 3 (Fechamento Cego de Caixa)**: Teste prático de divergência de caixa com validação de quebra e exigência de justificativa.
+3. **Aba 3: Hub de Diagramas Mermaid**:
+   - Grid com os 10 diagramas técnicos, modal ampliado (`96vw × 92vh`) com suporte a tela cheia em nova aba e controles de Pan & Zoom.
+4. **Aba 4: Matriz de Rastreabilidade TDD**:
+   - Tabela conectando RF01 a RF11 a testes unitários, testes de caso de uso e testes de integração de banco.
+
+---
+
+## 🧪 Disciplina de Testes & Rastreabilidade TDD
+
+Todo requisito funcional (RF) do sistema possui rastreabilidade ponta a ponta com casos de teste:
+
+```
+[ Requisito Funcional (RF) ] ──▶ [ Caso de Uso (UC) ] ──▶ [ Teste Unitário (Domínio) ] ──▶ [ Teste de Integração (DB) ]
+```
+
+| RF | Requisito | Caso de Uso | Teste Unitário (Domain) | Teste de Use Case (Application) |
+| :---: | :--- | :---: | :--- | :--- |
+| **RF01** | Consultar Cardápio | UC01 | `test_cardapio_item_disponibilidade()` | `test_listar_itens_ativos_use_case()` |
+| **RF02** | Registrar Pedido PDV | UC03 | `test_pedido_adicionar_item_calculo_total()` | `test_registrar_pedido_pdv_sucesso()` |
+| **RF03** | Unificar Fila Multicanal | UC02/03 | `test_pedido_origem_canal_valida()` | `test_pedidos_multiplos_canais_mesma_fila()` |
+| **RF04** | Trava de Idempotência | UC02/03 | `test_chave_idempotencia_obrigatoria()` | `test_rejeitar_pedido_duplicado_mesma_chave()` |
+| **RF05** | Fila KDS Cronológica | UC05 | `test_ordenacao_pedidos_por_criado_em()` | `test_obter_pedidos_pendentes_use_case()` |
+| **RF06** | Impressão Térmica Chapa | UC05 | `test_formatacao_cupom_chapa_escpos()` | `test_disparo_evento_impressao_pedido()` |
+| **RF07** | Fechamento Cego Caixa | UC10 | `test_apuracao_diferenca_caixa_cego()` | `test_fechar_caixa_com_divergencia_use_case()` |
+| **RF08** | Registro de Pagamento | UC02/03 | `test_pagamento_valor_bate_com_pedido()` | `test_registrar_pagamento_sucesso_use_case()` |
+| **RF09** | Emissão NFC-e Assíncrona | UC11 | `test_documento_fiscal_status_transicao()` | `test_agendamento_emissao_nfce_assincrona()` |
+| **RF10** | Relatórios de Turno | UC12 | `test_calculo_ticket_medio()` | `test_gerar_relatorio_periodo_use_case()` |
+| **RF11** | Controle de Entregas | UC07 | `test_despacho_transicao_em_rota_entregue()` | `test_atribuir_motoboy_pedido_use_case()` |
+
+---
+
+## 📁 Estrutura do Repositório
+
+```text
+Projeto_Web_Delivery/
+├── README.md                           # Visão geral, arquitetura e guia do projeto (este arquivo)
+├── apresentacao.html                   # Aplicação web 3 em 1: Slides, Simulador e Hub de Diagramas
+├── gerar_diagramas.py                  # Script automatizado para extração, renderização PNG/SVG e Zoom/Pan
+├── SKILL.md                            # Diretriz metodológica e checklist acadêmico formal de engenharia
+│
+├── Arquivos/
+│   ├── proposta_final.md               # Documento Mestre de especificação técnica e ideação (v2.1)
+│   └── proposta_mvp_realista.md        # Documento base de alinhamento com o microuniverso
+│
+└── Diagrama/
+    ├── index.html                      # Painel / Galeria com os 10 diagramas gerados
+    ├── 8.1_diagrama_de_casos_de_uso_geral.html (.png, .svg, .mmd)
+    ├── 8.3_diagrama_de_classes.html (.png, .svg, .mmd)
+    ├── 8.5_diagrama_entidade-relacionamento_der_logico.html (.png, .svg, .mmd)
+    ├── 8.6_diagrama_de_objetos_snapshot_em_tempo_de_execucao.html (.png, .svg, .mmd)
+    ├── 8.7_diagrama_de_estados_do_pedido_ciclo_de_vida_simplificado.html (.png, .svg, .mmd)
+    ├── diagrama_de_robustez_caso_de_uso_realizar_lancar_pedido.html (.png, .svg, .mmd)
+    ├── 8.9.1_ingestao_e_producao_na_chapa_fluxo_critico_da_cozinha_-_uc02uc03_uc05.html (.png, .svg, .mmd)
+    ├── 8.9.2_faturamento_fiscal_assincrono_worker_sefaz_-_uc11.html (.png, .svg, .mmd)
+    ├── 8.10_diagrama_de_atividades_fluxo_de_caixa_e_fechamento_cego.html (.png, .svg, .mmd)
+    └── 8.11_diagrama_de_componentes_clean_architecture_no_monolito_modular.html (.png, .svg, .mmd)
+```
+
+---
+
+## 🚀 Como Executar e Demonstrar
+
+### 1. Visualizar a Apresentação Completa e o Simulador
+Abra diretamente no navegador padrão:
+```powershell
+start apresentacao.html
+```
+
+### 2. Acessar a Galeria de Diagramas Técnicos
+```powershell
+start Diagrama\index.html
+```
+
+### 3. Regenerar Diagramas em Alta Resolução (PNG, SVG, HTML com Pan/Zoom)
+Caso queira alterar qualquer especificação Mermaid no [proposta_final.md](file:///c:/Users/Thales/Documents/WEB/Projeto_Web_Delivery/Arquivos/proposta_final.md), basta rodar:
+```powershell
+python gerar_diagramas.py --input Arquivos/proposta_final.md --output Diagrama
+```
+
+---
+
+## 📄 Licença e Propriedade
+Este projeto foi desenvolvido como especificação e produto de engenharia de software para a disciplina de Projeto Web / Engenharia de Software.
+Todos os direitos reservados.
