@@ -665,6 +665,13 @@
       border-radius: 4px;
       color: #38bdf8;
     }
+
+    .filter-req-btn.active {
+      background: var(--gradient-accent) !important;
+      color: #fff !important;
+      border-color: transparent !important;
+      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.35);
+    }
   </style>
 </head>
 <body>
@@ -683,6 +690,7 @@
     <div class="nav-tabs">
       <button class="nav-btn active" onclick="switchTab('slides')">🎬 Apresentação (Slides)</button>
       <button class="nav-btn" onclick="switchTab('simulator')">⚡ Simulador Operacional</button>
+      <button class="nav-btn" onclick="switchTab('requirements')">📋 Requisitos (RF & RNF)</button>
       <button class="nav-btn" onclick="switchTab('diagrams')">📐 Engenharia & UML</button>
       <button class="nav-btn" onclick="switchTab('matrix')">🎯 Rastreabilidade TDD</button>
     </div>
@@ -781,8 +789,41 @@
           </div>
         </div>
 
-        <!-- SLIDE 4: DOMAIN-DRIVEN DESIGN -->
+        <!-- SLIDE 4: ENGENHARIA DE REQUISITOS (RF & RNF) -->
         <div class="slide-body" data-slide="4">
+          <div class="slide-tag">Engenharia de Requisitos</div>
+          <h2 class="slide-title">Requisitos Funcionais & Não Funcionais</h2>
+          <p class="slide-subtitle">O equilíbrio exato entre o que o software entrega (RFs) e as garantias de qualidade da operação (RNFs).</p>
+          <div class="slide-grid-2">
+            <div class="slide-card">
+              <h4 style="color: var(--accent-secondary); display: flex; justify-content: space-between; align-items: center;">
+                <span>📋 11 Requisitos Funcionais (RF)</span>
+                <span class="badge badge-info">100% Cobertos</span>
+              </h4>
+              <ul style="font-size: 13px; line-height: 1.6; margin-top: 10px;">
+                <li><strong>Ingestão (RF01 a RF04):</strong> Cardápio digital web próprio, lançador PDV balcão, unificação de fila e trava de idempotência.</li>
+                <li><strong>Cozinha / Chapa (RF05 e RF06):</strong> Fila KDS cronológica com status "Pronto" e impressão térmica ESC/POS instantânea (&lt;1s).</li>
+                <li><strong>Caixa & Pagamentos (RF07 e RF08):</strong> Fechamento cego por operador (sem viés) e registro simples de valores.</li>
+                <li><strong>Fiscal & Gestão (RF09 a RF11):</strong> NFC-e assíncrona em background worker, relatórios de turno e controle de motoboys.</li>
+              </ul>
+            </div>
+            <div class="slide-card">
+              <h4 style="color: #34d399; display: flex; justify-content: space-between; align-items: center;">
+                <span>⚡ 10 Requisitos Não Funcionais (RNF)</span>
+                <span class="badge badge-success">Critérios Mensuráveis</span>
+              </h4>
+              <ul style="font-size: 13px; line-height: 1.6; margin-top: 10px;">
+                <li><strong>Performance (RNF01-02):</strong> Consultas &lt; 300ms e gravações &lt; 500ms na API FastAPI.</li>
+                <li><strong>Disponibilidade (RNF03):</strong> SLA 95% no horário de turno (internet fixa estável local).</li>
+                <li><strong>Usabilidade Cozinha (RNF04-05):</strong> Botões grandes (&gt;= 40x40dp), alto contraste e curva de aprendizado &lt; 5 min.</li>
+                <li><strong>Segurança & Dados (RNF06-10):</strong> Criptografia TLS 1.2+, mascaramento LGPD, backup diário PostgreSQL e logs de auditoria.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 5: DOMAIN-DRIVEN DESIGN -->
+        <div class="slide-body" data-slide="5">
           <div class="slide-tag">Modelagem Tática DDD</div>
           <h2 class="slide-title">Bounded Contexts & Linguagem Ubíqua</h2>
           <p class="slide-subtitle">Blindagem das regras de negócio organizadas por 4 contextos delimitados bem definidos.</p>
@@ -807,8 +848,8 @@
           </div>
         </div>
 
-        <!-- SLIDE 5: MODELAGEM VISUAL & UML -->
-        <div class="slide-body" data-slide="5">
+        <!-- SLIDE 6: MODELAGEM VISUAL & UML -->
+        <div class="slide-body" data-slide="6">
           <div class="slide-tag">Engenharia Formal (SKILL.md)</div>
           <h2 class="slide-title">Conformidade Metodológica e Rastreabilidade</h2>
           <p class="slide-subtitle">Do requisito funcional ao teste de unidade: uma esteira 100% conectada.</p>
@@ -828,8 +869,8 @@
           </div>
         </div>
 
-        <!-- SLIDE 6: A REGRA DE OURO - FECHAMENTO CEGO -->
-        <div class="slide-body" data-slide="6">
+        <!-- SLIDE 7: A REGRA DE OURO - FECHAMENTO CEGO -->
+        <div class="slide-body" data-slide="7">
           <div class="slide-tag">Segurança Operacional</div>
           <h2 class="slide-title">Fechamento Cego de Caixa & Idempotência</h2>
           <p class="slide-subtitle">Como a arquitetura impede fraudes, erros e duplicidade de comida na chapa.</p>
@@ -847,8 +888,8 @@
           </div>
         </div>
 
-        <!-- SLIDE 7: CLEAN ARCHITECTURE & TDD -->
-        <div class="slide-body" data-slide="7">
+        <!-- SLIDE 8: CLEAN ARCHITECTURE & TDD -->
+        <div class="slide-body" data-slide="8">
           <div class="slide-tag">Qualidade de Código</div>
           <h2 class="slide-title">Clean Architecture & TDD Estrito</h2>
           <p class="slide-subtitle">Regra de dependência: Frameworks e Banco são detalhes periféricos substituíveis.</p>
@@ -868,8 +909,8 @@
           </div>
         </div>
 
-        <!-- SLIDE 8: TRANSIÇÃO PARA PRÓXIMOS TÓPICOS -->
-        <div class="slide-body" data-slide="8">
+        <!-- SLIDE 9: TRANSIÇÃO PARA PRÓXIMOS TÓPICOS -->
+        <div class="slide-body" data-slide="9">
           <div class="slide-tag">Transição</div>
           <h2 class="slide-title">A Operação Física é Soberana</h2>
           <p class="slide-subtitle">O software existe para potencializar a lanchonete, e não para virar mais um problema durante o turno.</p>
@@ -882,11 +923,14 @@
               <button onclick="switchTab('simulator')" class="btn-add" style="padding: 12px 20px; font-size: 14px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; border-radius: 8px; background: var(--gradient-accent); color: #fff; border: none; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);">
                 ⚡ 1. Simulador Operacional (Live Demo) →
               </button>
+              <button onclick="switchTab('requirements')" class="btn-secondary" style="padding: 12px 18px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; border-radius: 8px; background: rgba(255, 255, 255, 0.08); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.12);">
+                📋 2. Tabela de Requisitos (RF & RNF) →
+              </button>
               <button onclick="switchTab('diagrams')" class="btn-secondary" style="padding: 12px 18px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; border-radius: 8px; background: rgba(255, 255, 255, 0.08); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.12);">
-                📐 2. Hub de Diagramas UML (10 Modelos) →
+                📐 3. Hub de Diagramas UML (10 Modelos) →
               </button>
               <button onclick="switchTab('matrix')" class="btn-secondary" style="padding: 12px 18px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; border-radius: 8px; background: rgba(255, 255, 255, 0.08); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.12);">
-                🎯 3. Matriz de Rastreabilidade TDD →
+                🎯 4. Matriz de Rastreabilidade TDD →
               </button>
             </div>
           </div>
@@ -894,7 +938,7 @@
 
         <!-- FOOTER / CONTROLES DE SLIDE -->
         <div class="slide-footer">
-          <div class="slide-counter" id="slideIndicator">SLIDE 01 / 08</div>
+          <div class="slide-counter" id="slideIndicator">SLIDE 01 / 09</div>
           <div class="slide-controls">
             <button class="btn-slide-nav" onclick="prevSlide()" title="Slide Anterior (Seta Esquerda)">←</button>
             <button class="btn-slide-nav" onclick="nextSlide()" title="Próximo Slide (Seta Direita)">→</button>
@@ -1026,6 +1070,217 @@
             <!-- Resultado de divergência -->
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- =======================================================================
+         ABA: ENGENHARIA DE REQUISITOS (RF & RNF)
+         ======================================================================= -->
+    <div id="tab-requirements" class="tab-pane">
+      <div style="margin-bottom: 20px;">
+        <h2 style="font-family: 'Outfit'; font-size: 24px;">Engenharia de Requisitos (RF e RNF)</h2>
+        <p style="color: var(--text-muted); font-size: 14px;">Especificação formal dos requisitos do sistema adaptados à operação real da lanchonete familiar (Seção 3 da Proposta Técnica).</p>
+        
+        <div style="display: flex; gap: 14px; margin-top: 14px; flex-wrap: wrap;">
+          <span class="badge badge-info" style="font-size: 13px; padding: 6px 12px;">🍔 11 Requisitos Funcionais (9 Alta, 2 Média)</span>
+          <span class="badge badge-success" style="font-size: 13px; padding: 6px 12px;">⚡ 10 Requisitos Não Funcionais Mensuráveis</span>
+          <span class="badge badge-warning" style="font-size: 13px; padding: 6px 12px;">🛡️ 0 Over-Engineering (Escopo Realista)</span>
+        </div>
+      </div>
+
+      <!-- FILTROS DE VISUALIZAÇÃO -->
+      <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <button class="btn btn-secondary filter-req-btn active" onclick="filterRequirements('all')" id="btnFilterAll" style="padding: 8px 16px; font-size: 13px; cursor: pointer; border-radius: 8px;">📋 Todos os Requisitos (21)</button>
+        <button class="btn btn-secondary filter-req-btn" onclick="filterRequirements('rf')" id="btnFilterRf" style="padding: 8px 16px; font-size: 13px; cursor: pointer; border-radius: 8px;">🍔 Requisitos Funcionais (11)</button>
+        <button class="btn btn-secondary filter-req-btn" onclick="filterRequirements('rnf')" id="btnFilterRnf" style="padding: 8px 16px; font-size: 13px; cursor: pointer; border-radius: 8px;">⚡ Requisitos Não Funcionais (10)</button>
+      </div>
+
+      <!-- SEÇÃO REQUISITOS FUNCIONAIS -->
+      <div id="section-rf" style="margin-bottom: 36px;">
+        <h3 style="font-family: 'Outfit'; font-size: 18px; margin-bottom: 12px; color: #a5b4fc; display: flex; align-items: center; gap: 8px;">
+          🍔 Requisitos Funcionais (RF01 a RF11)
+        </h3>
+        <table class="matrix-table">
+          <thead>
+            <tr>
+              <th style="width: 80px;">ID</th>
+              <th>Descrição do Requisito</th>
+              <th style="width: 110px;">Prioridade</th>
+              <th style="width: 170px;">Contexto / Ator</th>
+              <th style="width: 160px;">Caso de Uso (UML)</th>
+              <th>Critério de Aceite / Teste</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="code-tag">RF01</span></td>
+              <td>Cliente consultar cardápio digital web, adicionar itens, personalizar adicionais/observações e submeter pedido pelo celular.</td>
+              <td><span class="badge badge-danger">ALTA</span></td>
+              <td>Ingestão / Cliente</td>
+              <td><strong>UC01 / UC02</strong></td>
+              <td>Cardápio renderiza com itens ativos; submissão gera pedido persistido com status <code>CRIADO</code>.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">RF02</span></td>
+              <td>Atendente registrar pedidos presenciais e telefônicos diretamente no painel interno com baixa fricção.</td>
+              <td><span class="badge badge-danger">ALTA</span></td>
+              <td>Ingestão / Atendente</td>
+              <td><strong>UC03</strong></td>
+              <td>Lançamento em menos de 15 segundos sem atalhos complexos ou bloqueios.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">RF03</span></td>
+              <td>Consolidação de pedidos de múltiplos canais (cardápio web, WhatsApp manual e balcão) em uma única fila cronológica.</td>
+              <td><span class="badge badge-danger">ALTA</span></td>
+              <td>Ingestão / Sistema</td>
+              <td><strong>UC02 / UC03</strong></td>
+              <td>Todos os pedidos entram na mesma fila da cozinha ordenados estritamente por <code>criado_em</code>.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">RF04</span></td>
+              <td>Rejeição de pedidos duplicados via chave de idempotência simples (sem depender de Redis complexo).</td>
+              <td><span class="badge badge-danger">ALTA</span></td>
+              <td>Ingestão / Sistema</td>
+              <td><strong>UC02 / UC03</strong></td>
+              <td>Constraint única <code>chave_idempotencia</code> no PostgreSQL; reenvio retorna 200 OK com pedido original.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">RF05</span></td>
+              <td>Terminal de cozinha simplificado (KDS) exibindo pedidos pendentes com botão de avanço "Pronto".</td>
+              <td><span class="badge badge-danger">ALTA</span></td>
+              <td>Fulfillment / Chapeiro</td>
+              <td><strong>UC05 / UC06</strong></td>
+              <td>Transição de <code>EM_PREPARO</code> para <code>PRONTO</code> com feedback visual e sonoro de conclusão.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">RF06</span></td>
+              <td>Impressão térmica automática de cupom físico na chapa assim que o pedido é confirmado.</td>
+              <td><span class="badge badge-danger">ALTA</span></td>
+              <td>Fulfillment / Cozinha</td>
+              <td><strong>UC05</strong></td>
+              <td>Disparo ESC/POS via USB/Socket em menos de 1 segundo para grampear na sacola.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">RF07</span></td>
+              <td>Controle de caixa com abertura de fundo de troco, registro de sangrias e fechamento cego auditável.</td>
+              <td><span class="badge badge-danger">ALTA</span></td>
+              <td>Financeiro / Atendente</td>
+              <td><strong>UC10</strong></td>
+              <td>Operador digita dinheiro e comprovantes sem ver o saldo do sistema; divergência exige justificativa.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">RF08</span></td>
+              <td>Registro simples de pagamento vinculado ao pedido (dinheiro, maquinetas físicas de cartão ou Pix).</td>
+              <td><span class="badge badge-danger">ALTA</span></td>
+              <td>Financeiro / Caixa</td>
+              <td><strong>UC02 / UC03</strong></td>
+              <td>Liquidação do valor total associada à sessão ativa do caixa sem gateway intermediador complexo.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">RF09</span></td>
+              <td>Emissão fiscal de NFC-e assíncrona desacoplada em background worker.</td>
+              <td><span class="badge badge-danger">ALTA</span></td>
+              <td>Fiscal / Sistema</td>
+              <td><strong>UC11</strong></td>
+              <td>Transmissão SEFAZ em background; instabilidades tributárias jamais travam a chapa ou o motoboy.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">RF10</span></td>
+              <td>Relatórios gerenciais básicos: faturamento do período, ticket médio e ranking de itens mais vendidos.</td>
+              <td><span class="badge badge-warning" style="background:#3b82f6; color:#fff;">MÉDIA</span></td>
+              <td>Backoffice / Administrador</td>
+              <td><strong>UC12</strong></td>
+              <td>Visualização consolidada de vendas e insumos para planejamento de estoque do próximo turno.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">RF11</span></td>
+              <td>Controle simplificado de despacho e entregas (atribuição ao motoboy, hora de saída e entrega).</td>
+              <td><span class="badge badge-warning" style="background:#3b82f6; color:#fff;">MÉDIA</span></td>
+              <td>Logística / Entregador</td>
+              <td><strong>UC07</strong></td>
+              <td>Vinculação rápida de entrega ao motoboy próprio sem necessidade de rastreadores GPS caros.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- SEÇÃO REQUISITOS NÃO FUNCIONAIS -->
+      <div id="section-rnf">
+        <h3 style="font-family: 'Outfit'; font-size: 18px; margin-bottom: 12px; color: #6ee7b7; display: flex; align-items: center; gap: 8px;">
+          ⚡ Requisitos Não Funcionais (RNF01 a RNF10)
+        </h3>
+        <table class="matrix-table">
+          <thead>
+            <tr>
+              <th style="width: 90px;">ID</th>
+              <th style="width: 160px;">Categoria</th>
+              <th>Critério Mensurável e Especificação Técnica</th>
+              <th style="width: 220px;">Mecanismo de Engenharia</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="code-tag">RNF01</span></td>
+              <td><span class="badge badge-info">Performance</span></td>
+              <td>Tempo de resposta da API &lt; 300ms para operações de leitura (consulta de cardápio e listagem de pedidos ativos).</td>
+              <td>FastAPI assíncrono + índices B-Tree no PostgreSQL.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">RNF02</span></td>
+              <td><span class="badge badge-info">Performance</span></td>
+              <td>Tempo de resposta da API &lt; 500ms para operações de escrita (criação de pedido e fechamento de caixa).</td>
+              <td>Transações ACID curtas sem chamadas síncronas a APIs externas.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">RNF03</span></td>
+              <td><span class="badge badge-success">Disponibilidade</span></td>
+              <td>SLA de 95% de disponibilidade durante o horário de expediente (terça a domingo, 18h às 23h30).</td>
+              <td>Instalação em rede local cabeada na lanchonete + Uvicorn process manager.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">RNF04</span></td>
+              <td><span class="badge badge-warning">Usabilidade</span></td>
+              <td>Interface da cozinha com alvos de toque mínimos de 40x40dp e alto contraste visual para ambiente de chapa/gordura.</td>
+              <td>Design system com fontes legíveis (Inter/Outfit) e cores contrastantes.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">RNF05</span></td>
+              <td><span class="badge badge-warning">Usabilidade</span></td>
+              <td>Fluxo operacional de uso intuitivo, assimilável em menos de 5 minutos de instrução por novo colaborador.</td>
+              <td>Redução drástica de cliques e eliminação de formulários prolixos.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">RNF06</span></td>
+              <td><span class="badge badge-danger">Segurança</span></td>
+              <td>Comunicação criptografada de ponta a ponta via TLS 1.2+ para proteger dados em trânsito.</td>
+              <td>Certificado SSL/TLS e cabeçalhos de segurança HTTP (HSTS, CSP).</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">RNF07</span></td>
+              <td><span class="badge badge-danger">Segurança</span></td>
+              <td>Mascaramento e anonimização de dados sensíveis (telefones, CPFs) em conformidade com a LGPD.</td>
+              <td>Tratamento em Value Objects e mascaramento na camada de DTOs.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">RNF08</span></td>
+              <td><span class="badge badge-info">Backup</span></td>
+              <td>Rotina diária automatizada de backup de banco de dados após o fechamento do caixa.</td>
+              <td>Dump diário do PostgreSQL compactado com rotação de 30 dias.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">RNF09</span></td>
+              <td><span class="badge badge-info">Integridade</span></td>
+              <td>Garantia de integridade referencial e consistência atômica no banco de dados.</td>
+              <td>Chaves estrangeiras, constraints NOT NULL e integridade transacional ACID.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">RNF10</span></td>
+              <td><span class="badge badge-success">Auditoria</span></td>
+              <td>Rastreabilidade e log de auditoria obrigatório para operações financeiras críticas (fechamento e quebras de caixa).</td>
+              <td>Tabela de auditoria imutável registrando operador, data/hora e divergência.</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -1304,18 +1559,42 @@
     // CONTROLE DOS SLIDES
     // =========================================================================
     let currentSlide = 1;
-    const totalSlides = 8;
+    const totalSlides = 9;
 
     const speakerNotesMap = {
       1: "🗣️ SLIDE 1 (Capa): 'Bom dia professor e banca. Hoje apresentamos a Plataforma Unificada de Gestão de Delivery. Nosso diferencial foi não construir um sistema genérico para grandes redes, mas mergulhar na dor real de uma lanchonete familiar com 5 funcionários.'",
       2: "🗣️ SLIDE 2 (Microuniverso): 'A lanchonete opera com 20 a 60 pedidos por noite. O chapeiro não usa telas por causa da gordura e calor; ele precisa de papel impresso. Além disso, pedidos que chegam pelo WhatsApp chegam fragmentados e geram retrabalho na cozinha.'",
       3: "🗣️ SLIDE 3 (Over-Engineering): 'Aqui demonstramos maturidade de trade-off: rejeitamos microsserviços, vector clocks e split contábil. Uma lanchonete precisa de um Monolito Modular estável com transações ACID no PostgreSQL.'",
-      4: "🗣️ SLIDE 4 (DDD): 'Modelamos o domínio em 4 Bounded Contexts estritos. Destaco os agregados Pedido e CaixaSessao que encapsulam as invariantes de cálculo de totais e conciliação cega.'",
-      5: "🗣️ SLIDE 5 (UML & Formalismo): 'Seguimos rigorosamente o SKILL.md: diagramas de casos de uso com herança de atores, classes com métodos e visibilidade, DER sem redundâncias e FSM com ciclo limpo.'",
-      6: "🗣️ SLIDE 6 (Regras Críticas): 'Duas regras fundamentais: a Idempotência que impede duplicar pedidos na chapa se o cliente der duplo-clique, e o Fechamento Cego de Caixa, onde o operador declara o dinheiro sem ver o sistema.'",
-      7: "🗣️ SLIDE 7 (Clean Architecture & TDD): 'Organizamos as 4 camadas da Clean Architecture. Cada caso de uso é isolado e testado antes de qualquer linha de framework ou banco.'",
-      8: "🗣️ SLIDE 8 (Transição para Demo): 'A operação física é soberana: o software serve à chapa e ao balcão, garantindo rapidez e zero atrito. Agora, avançamos para o próximo tópico da apresentação: vamos demonstrar a solução funcionando na prática no nosso Simulador Operacional!'"
+      4: "🗣️ SLIDE 4 (Requisitos RF & RNF): 'Especificamos 11 Requisitos Funcionais e 10 Não Funcionais. Os RFs cobrem captura, preparo na chapa, caixa cego e emissão fiscal. Os RNFs estabelecem métricas rigorosas: resposta da API abaixo de 500ms, usabilidade para cozinha com alvos de toque de 40dp e conformidade com LGPD.'",
+      5: "🗣️ SLIDE 5 (DDD): 'Modelamos o domínio em 4 Bounded Contexts estritos. Destaco os agregados Pedido e CaixaSessao que encapsulam as invariantes de cálculo de totais e conciliação cega.'",
+      6: "🗣️ SLIDE 6 (UML & Formalismo): 'Seguimos rigorosamente o SKILL.md: diagramas de casos de uso com herança de atores, classes com métodos e visibilidade, DER sem redundâncias e FSM com ciclo limpo.'",
+      7: "🗣️ SLIDE 7 (Regras Críticas): 'Duas regras fundamentais: a Idempotência que impede duplicar pedidos na chapa se o cliente der duplo-clique, e o Fechamento Cego de Caixa, onde o operador declara o dinheiro sem ver o sistema.'",
+      8: "🗣️ SLIDE 8 (Clean Architecture & TDD): 'Organizamos as 4 camadas da Clean Architecture. Cada caso de uso é isolado e testado antes de qualquer linha de framework ou banco.'",
+      9: "🗣️ SLIDE 9 (Transição para Demo): 'A operação física é soberana: o software serve à chapa e ao balcão, garantindo rapidez e zero atrito. Agora, avançamos para o próximo tópico da apresentação: vamos demonstrar a solução funcionando na prática no nosso Simulador Operacional!'"
     };
+
+    // =========================================================================
+    // FILTROS DE REQUISITOS (RF / RNF)
+    // =========================================================================
+    function filterRequirements(type) {
+      document.querySelectorAll('.filter-req-btn').forEach(btn => btn.classList.remove('active'));
+      const secRf = document.getElementById('section-rf');
+      const secRnf = document.getElementById('section-rnf');
+
+      if (type === 'all') {
+        document.getElementById('btnFilterAll').classList.add('active');
+        secRf.style.display = 'block';
+        secRnf.style.display = 'block';
+      } else if (type === 'rf') {
+        document.getElementById('btnFilterRf').classList.add('active');
+        secRf.style.display = 'block';
+        secRnf.style.display = 'none';
+      } else if (type === 'rnf') {
+        document.getElementById('btnFilterRnf').classList.add('active');
+        secRf.style.display = 'none';
+        secRnf.style.display = 'block';
+      }
+    }
 
     function updateSlide() {
       document.querySelectorAll('.slide-body').forEach(slide => slide.classList.remove('active'));

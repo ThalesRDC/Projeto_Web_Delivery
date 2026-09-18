@@ -35,6 +35,7 @@ Uso:
 import os
 import re
 import sys
+import html
 import time
 import json
 import zlib
@@ -389,6 +390,7 @@ class RenderizadorMermaid:
     def salvar_html(self, diag: Diagrama) -> Path:
         """Gera uma página HTML interativa individual com renderização Mermaid e controles de Zoom/Pan."""
         caminho = self.output_dir / f"{diag.slug}.html"
+        codigo_escapado = html.escape(diag.codigo_mermaid)
         html_conteudo = f"""<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -569,7 +571,7 @@ class RenderizadorMermaid:
   <div class="viewport" id="viewport">
     <div class="canvas-wrapper" id="canvasWrapper">
       <pre class="mermaid" id="mermaidCode">
-{diag.codigo_mermaid}
+{codigo_escapado}
       </pre>
     </div>
 

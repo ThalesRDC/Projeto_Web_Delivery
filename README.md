@@ -100,18 +100,20 @@ Toda a modelagem técnica do sistema está documentada em conformidade estrita c
 
 ## 🖥️ Aplicação de Apresentação Técnica & Simulador Operacional
 
-O projeto conta com uma ferramenta interativa 3 em 1 criada no arquivo [apresentacao.html](file:///c:/Users/Thales/Documents/WEB/Projeto_Web_Delivery/apresentacao.html):
+O projeto conta com uma ferramenta web interativa multifuncional criada no arquivo [apresentacao.html](file:///c:/Users/Thales/Documents/WEB/Projeto_Web_Delivery/apresentacao.html):
 
 1. **Aba 1: Apresentação de Slides Executiva**:
-   - 8 slides profissionais com tipografia moderna, design dark glassmorphism e controle por teclado (`←`, `→`, barra de espaço).
-   - Gaveta retrátil com roteiro de fala para o apresentador (tecla `N`).
+   - 9 slides profissionais com tipografia moderna, design dark glassmorphism e controle por teclado (`←`, `→`, barra de espaço).
+   - Inclui slide dedicado para Engenharia de Requisitos (RF e RNF) e gaveta retrátil com roteiro de fala para o apresentador (tecla `N`).
 2. **Aba 2: Simulador Operacional da Lanchonete (Live Demo)**:
    - **Coluna 1 (Cardápio Web do Cliente)**: Adição de lanches e fechamento de pedido com áudio sintetizado.
    - **Coluna 2 (Cozinha & Chapa KDS)**: Fila de pedidos e geração do **Cupom de Produção Térmico** simulado para grampear na sacola.
    - **Coluna 3 (Fechamento Cego de Caixa)**: Teste prático de divergência de caixa com validação de quebra e exigência de justificativa.
-3. **Aba 3: Hub de Diagramas Mermaid**:
+3. **Aba 3: Tabela de Requisitos (RF & RNF)**:
+   - Visualização interativa e filtrável dos 11 Requisitos Funcionais e 10 Requisitos Não Funcionais, detalhando critérios mensuráveis e casos de uso associados.
+4. **Aba 4: Hub de Diagramas Mermaid**:
    - Grid com os 10 diagramas técnicos, modal ampliado (`96vw × 92vh`) com suporte a tela cheia em nova aba e controles de Pan & Zoom.
-4. **Aba 4: Matriz de Rastreabilidade TDD**:
+5. **Aba 5: Matriz de Rastreabilidade TDD**:
    - Tabela conectando RF01 a RF11 a testes unitários, testes de caso de uso e testes de integração de banco.
 
 ---
