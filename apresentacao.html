@@ -480,6 +480,45 @@
       box-shadow: var(--shadow-glow);
     }
 
+    /* SELETOR DE MODALIDADE: ENTREGA VS RETIRADA */
+    .delivery-mode-selector {
+      margin-bottom: 12px;
+    }
+
+    .delivery-mode-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .btn-delivery-mode {
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.05);
+      color: #94a3b8;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-delivery-mode:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .btn-delivery-mode.active {
+      background: rgba(99, 102, 241, 0.25);
+      border-color: var(--accent-primary);
+      color: #fff;
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.35);
+    }
+
     /* VISÃO COZINHA / KDS */
     .kds-orders-list {
       flex: 1;
@@ -1003,17 +1042,30 @@
           </div>
 
           <div class="cart-summary">
+            <!-- SELETOR DE MODALIDADE: ENTREGA OU RETIRADA -->
+            <div class="delivery-mode-selector">
+              <div style="font-size: 11px; font-weight: 600; color: #94a3b8; margin-bottom: 6px; text-transform: uppercase;">Modalidade do Pedido:</div>
+              <div class="delivery-mode-grid">
+                <button type="button" class="btn-delivery-mode active" id="btnModeDelivery" onclick="simSetDeliveryMode('delivery')">
+                  🛵 Entrega (+R$ 6)
+                </button>
+                <button type="button" class="btn-delivery-mode" id="btnModePickup" onclick="simSetDeliveryMode('pickup')">
+                  🏬 Retirada (Grátis)
+                </button>
+              </div>
+            </div>
+
             <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom: 6px;">
               <span>Subtotal Itens:</span>
               <span id="simCartSubtotal">R$ 0,00</span>
             </div>
             <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom: 6px;">
-              <span>Taxa Entrega:</span>
-              <span>R$ 6,00</span>
+              <span id="simDeliveryLabel">Taxa Entrega:</span>
+              <span id="simDeliveryFee" style="color: #38bdf8;">R$ 0,00</span>
             </div>
             <div style="display:flex; justify-content:space-between; font-weight:700; font-size:15px; color:#fff; border-top:1px solid var(--border-color); padding-top:6px;">
               <span>Total Pedido:</span>
-              <span id="simCartTotal">R$ 6,00</span>
+              <span id="simCartTotal">R$ 0,00</span>
             </div>
             <button class="btn-submit-order" onclick="simSubmitOrder()">🚀 Finalizar Pedido Web</button>
           </div>
@@ -1655,6 +1707,7 @@
     let cart = [];
     let orderCounter = 42;
     let systemCashTotal = 0;
+    let simDeliveryMode = 'delivery'; // 'delivery' ou 'pickup'
 
     function playAudioTone(freq = 440, duration = 0.1) {
       try {
@@ -1670,6 +1723,14 @@
       } catch (e) {}
     }
 
+    function simSetDeliveryMode(mode) {
+      simDeliveryMode = mode;
+      document.getElementById('btnModeDelivery').classList.toggle('active', mode === 'delivery');
+      document.getElementById('btnModePickup').classList.toggle('active', mode === 'pickup');
+      playAudioTone(mode === 'delivery' ? 520 : 640, 0.08);
+      renderCart();
+    }
+
     function simAddToCart(nome, preco) {
       cart.push({ nome, preco });
       playAudioTone(520, 0.08);
@@ -1678,10 +1739,20 @@
 
     function renderCart() {
       const subtotal = cart.reduce((acc, item) => acc + item.preco, 0);
-      const taxa = cart.length > 0 ? 6.00 : 0.00;
-      const total = subtotal + taxa;
+      const isDelivery = simDeliveryMode === 'delivery';
+      const taxa = (isDelivery && cart.length > 0) ? 6.00 : 0.00;
+      const total = cart.length > 0 ? (subtotal + taxa) : 0.00;
 
       document.getElementById('simCartSubtotal').innerText = `R$ ${subtotal.toFixed(2)}`;
+      if (isDelivery) {
+        document.getElementById('simDeliveryLabel').innerText = 'Taxa Entrega:';
+        document.getElementById('simDeliveryFee').innerText = cart.length > 0 ? 'R$ 6,00' : 'R$ 0,00';
+        document.getElementById('simDeliveryFee').style.color = '#38bdf8';
+      } else {
+        document.getElementById('simDeliveryLabel').innerText = 'Taxa Retirada:';
+        document.getElementById('simDeliveryFee').innerText = 'R$ 0,00 (Grátis)';
+        document.getElementById('simDeliveryFee').style.color = '#34d399';
+      }
       document.getElementById('simCartTotal').innerText = `R$ ${total.toFixed(2)}`;
     }
 
@@ -1693,12 +1764,16 @@
 
       orderCounter++;
       const subtotal = cart.reduce((acc, item) => acc + item.preco, 0);
-      const total = subtotal + 6.00;
+      const isDelivery = simDeliveryMode === 'delivery';
+      const taxa = isDelivery ? 6.00 : 0.00;
+      const total = subtotal + taxa;
       systemCashTotal += total;
 
       const orderData = {
         id: orderCounter,
         itens: [...cart],
+        modalidade: isDelivery ? 'DELIVERY' : 'RETIRADA',
+        taxaEntrega: taxa,
         total: total,
         hora: new Date().toLocaleTimeString().substring(0, 5)
       };
@@ -1720,20 +1795,28 @@
         kdsList.innerHTML = "";
       }
 
+      const isDelivery = order.modalidade === 'DELIVERY';
+      const modeBadge = isDelivery 
+        ? '<span class="badge badge-info" style="font-size:10px;">🛵 Delivery</span>' 
+        : '<span class="badge badge-success" style="font-size:10px;">🏬 Retirada</span>';
+
       const card = document.createElement('div');
       card.className = "kds-card";
       card.id = `kds-order-${order.id}`;
 
       card.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <span style="font-weight:700; font-size:15px; color:#f8fafc;">Pedido #${order.id}</span>
+          <div>
+            <span style="font-weight:700; font-size:15px; color:#f8fafc;">Pedido #${order.id}</span>
+            <span style="margin-left:6px;">${modeBadge}</span>
+          </div>
           <span class="badge badge-warning" id="status-${order.id}">CRIADO (${order.hora})</span>
         </div>
         <div style="font-size:13px; color:#cbd5e1; margin-bottom:10px;">
           ${order.itens.map(i => `• 1x ${i.nome}`).join('<br>')}
         </div>
         <div style="display:flex; gap:8px;">
-          <button class="btn-secondary" style="padding:4px 8px; font-size:11px;" onclick="simPrintReceipt(${order.id}, '${order.itens.map(i => i.nome).join(', ')}', ${order.total})">🖨️ Imprimir</button>
+          <button class="btn-secondary" style="padding:4px 8px; font-size:11px;" onclick="simPrintReceipt(${order.id}, '${order.itens.map(i => i.nome).join(', ')}', ${order.total}, '${order.modalidade}')">🖨️ Imprimir</button>
           <button class="btn-add" style="padding:4px 8px; font-size:11px; background:#10b981;" onclick="simAdvanceStatus(${order.id})">✓ Marcar Pronto</button>
         </div>
       `;
@@ -1753,20 +1836,23 @@
       }
     }
 
-    function simPrintReceipt(id, itens, total) {
+    function simPrintReceipt(id, itens, total, modalidade = 'DELIVERY') {
       playAudioTone(300, 0.25);
       const receipt = document.getElementById('thermalPaper');
       const content = document.getElementById('thermalContent');
+      const isDelivery = modalidade === 'DELIVERY';
       content.innerHTML = `
         DATA: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}<br>
         PEDIDO: #${id} (WEB PROPRIO)<br>
+        MODALIDADE: ${isDelivery ? '🛵 ENTREGA A DOMICÍLIO' : '🏬 RETIRADA NO BALCÃO'}<br>
         --------------------------------<br>
         ITENS:<br>
         ${itens.replace(/, /g, '<br>')}<br>
         OBS: SEM CEBOLA, MAIONESE EXTRA<br>
         --------------------------------<br>
+        TAXA ENTREGA: R$ ${isDelivery ? '6,00' : '0,00'}<br>
         TOTAL: R$ ${total.toFixed(2)} (PIX PAGO)<br>
-        ENTREGA: RUA DAS FLORES, 123
+        DESTINO: ${isDelivery ? 'RUA DAS FLORES, 123' : 'CLIENTE RETIRA NO BALCÃO'}
       `;
       receipt.style.display = "block";
     }
